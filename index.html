@@ -335,7 +335,7 @@ button{color:inherit}
       <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8F04B"/><stop offset="1" stop-color="#53D8FF"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="13" fill="url(#lg)"/><path d="M14 11h20a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7h-9l-8 7v-7h-3a7 7 0 0 1-7-7v-9a7 7 0 0 1 7-7z" fill="#06090F"/><path d="M27 15l-8 11h5l-2 8 8-11h-5l2-8z" fill="#C8F04B"/></svg>
       <div class="brand-text">
         <span class="wordmark">Quick<b>Chat</b></span>
-        <span class="brand-dev">Developer: Ryo XD · v5</span>
+        <span class="brand-dev">Developer: Ryo XD · v6</span>
       </div>
     </div>
     <div class="top-actions">
@@ -391,7 +391,7 @@ button{color:inherit}
           <button id="tabJoin" role="tab" aria-selected="false"></button>
         </div>
         <div id="paneCreate" class="pane">
-          <p class="pane-hint">Kode acak dibuat dan didaftarkan ke server. Hanya kode ini (atau link undangannya) yang bisa dipakai orang lain untuk masuk.</p>
+          <p class="pane-hint">Kode acak dibuat dengan checksum bawaan. Kode ini (atau link undangannya) pasti diterima di perangkat lain; kode ketik asal akan ditolak.</p>
           <button id="btnGenerate" class="btn primary" type="button"></button>
           <div id="roomBox" class="room-box hidden">
             <div class="rb-top"><span class="rb-label">KODE ROOM</span><button id="btnRegen" class="mini-btn" type="button" title="Acak ulang"></button></div>
@@ -404,11 +404,11 @@ button{color:inherit}
         <div id="paneJoin" class="pane hidden">
           <label class="fld" id="codeFld">
             <span>Kode room</span>
-            <input id="codeInput" class="mono" placeholder="cth: K7X-P2M-9NQ" maxlength="32" autocomplete="off" spellcheck="false">
+            <input id="codeInput" class="mono" placeholder="XXX-XXX-XXX" maxlength="32" autocomplete="off" spellcheck="false">
             <small class="err">Masukkan kode room yang valid.</small>
           </label>
           <button id="btnJoin" class="btn primary" type="button"></button>
-          <p class="pane-hint center">Kode asal / tidak terdaftar akan langsung ditolak.</p>
+          <p class="pane-hint center">Kode asal / checksum salah akan langsung ditolak.</p>
         </div>
       </div>
       <p class="jc-foot" id="jcFoot">🔒 Avatar & nama disimpan di perangkat ini. Tidak perlu akun.</p>
@@ -511,8 +511,6 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const now=()=>Date.now();
 const ALPHABET='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const rand=n=>{const b=new Uint8Array(n);crypto.getRandomValues(b);return[...b].map(x=>ALPHABET[x%ALPHABET.length]).join('');};
-const newRoomCode=()=>rand(3)+'-'+rand(3)+'-'+rand(3);
-const normCode=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').replace(/-{2,}/g,'-').replace(/^-+|-+$/g,'').slice(0,32);
 const COLORS=['#53D8FF','#FF6AC1','#9D8CFF','#FFC24B','#4ADE80','#FF9F45','#C8F04B','#FF6B6B'];
 const AVATARS=[
   {e:'🦊',n:'Rubah'},{e:'🐼',n:'Panda'},{e:'🐱',n:'Kucing'},{e:'🐸',n:'Katak'},
@@ -535,6 +533,15 @@ function avatarMarkup(name,emoji,colorIdx,cls){
   const c=COLORS[idx],content=emoji||initials(name);
   return `<div class="${cls}${emoji?' is-emoji':''}" style="background:linear-gradient(145deg,rgba(255,255,255,.28),rgba(0,0,0,.12)),${c}">${esc(content)}</div>`;
 }
+
+/* ===== Kode room: format + checksum (validasi lokal, tanpa server) ===== */
+const CODE_RE=/^([A-Z0-9]{3})-([A-Z0-9]{3})-([A-Z0-9]{3})$/;
+function checkChar(eight){let h=0;for(let i=0;i<eight.length;i++){h=(h*31+eight.charCodeAt(i)*(i+7))>>>0;}return ALPHABET[h%ALPHABET.length];}
+function newRoomCode(){const p=rand(8);return p.slice(0,3)+'-'+p.slice(3,6)+'-'+p.slice(6,8)+checkChar(p);}
+function normCode(s){return String(s||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').replace(/-{2,}/g,'-').replace(/^-+|-+$/g,'').slice(0,32);}
+function formatCodeInput(s){let t=normCode(s);if(!t)return '';if(!t.includes('-')&&t.length===9)t=t.slice(0,3)+'-'+t.slice(3,6)+'-'+t.slice(6,9);return t;}
+function isValidCode(code){const m=CODE_RE.exec(code);if(!m)return false;const eight=m[1]+m[2]+m[3].slice(0,2);return checkChar(eight)===m[3][2];}
+
 const IC={
   zap:'<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
   copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
@@ -580,15 +587,15 @@ function toast(msg,emoji='✨',action){
   $('#toasts').appendChild(el);requestAnimationFrame(()=>el.classList.add('in'));setTimeout(dismiss,action?5200:2600);
 }
 
-/* ===== Transport: multi-broker MQTT + handshake validasi room ===== */
-const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
-const NS='qc-ryoxd-v5/';
+/* ===== Transport: multi-broker MQTT untuk sinkron lintas perangkat ===== */
+const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt','wss://mqtt.eclipseprojects.io:443/ws'];
+const NS='qc-ryoxd-v6/';
 const chatTopic=r=>NS+'room/'+r+'/chat';
 const metaTopic=r=>NS+'room/'+r+'/meta';
 let clients=[],libTries=0;
 const created=new Set(JSON.parse(localStorage.getItem('qc-created')||'[]'));
 const lastHist={};
-let bc=null;try{bc=new BroadcastChannel('quickchat-v5');}catch(e){}
+let bc=null;try{bc=new BroadcastChannel('quickchat-v6');}catch(e){}
 const anyConnected=()=>clients.some(c=>c&&c.connected);
 function publish(o){
   const payload={...o,room:S.room,from:uid};
@@ -621,7 +628,6 @@ function handleRemote(d){
   if(d.kind==='msg')applyMessage(d.data);
   else if(d.kind==='presence')applyPresence(d.from,d.data);
   else if(d.kind==='react'){patchRaw(d.mid,d.key,d.val);renderReactions(d.mid);}
-  else if(d.kind==='probe'&&d.from!==uid){ensureMeta(S.room);publish({kind:'probe-ack',code:S.room});}
   else if(d.kind==='hello'&&d.from!==uid){
     writePresence();
     const t=now();
@@ -629,23 +635,10 @@ function handleRemote(d){
   }
   else if(d.kind==='history'&&d.from!==uid){(d.msgs||[]).forEach(m=>applyMessage(m));if(d.react)for(const mid in d.react)for(const k in d.react[mid]){patchRaw(mid,k,d.react[mid][k]);renderReactions(mid);}}
 }
-function verifyRoom(code,cb){
-  if(!anyConnected()){cb(false);return;}
-  const mt=metaTopic(code),ct=chatTopic(code);let done=false;
-  const finish=ok=>{if(done)return;done=true;clearTimeout(to);clients.forEach(c=>{if(!c)return;try{c.unsubscribe(mt);}catch(e){} try{c.unsubscribe(ct);}catch(e){} try{c.removeListener('message',onMsg);}catch(e){}});cb(ok);};
-  const onMsg=(t,p)=>{
-    let d;try{d=JSON.parse(p.toString());}catch(e){return;}
-    if(t===mt&&d&&d.type==='meta'&&d.code===code)finish(true);
-    else if(t===ct&&d&&d.kind==='probe-ack'&&d.code===code&&d.from!==uid)finish(true);
-  };
-  clients.forEach(c=>{if(c&&c.connected){c.on('message',onMsg);try{c.subscribe(mt,{qos:1});c.subscribe(ct,{qos:0});}catch(e){}}});
-  setTimeout(()=>{const probe=JSON.stringify({kind:'probe',code,room:code,from:uid});clients.forEach(c=>{if(c&&c.connected){try{c.publish(ct,probe,{qos:0});}catch(e){}}});},200);
-  const to=setTimeout(()=>finish(false),4500);
-}
 
 const S={room:null,name:'',token:0,joined:false,msgs:new Map(),order:[],presence:new Map(),reactRaw:{},unread:0,initialUntil:0,editId:null,typingSent:false,pendingCode:null,avatar:AVATARS[0].e,avatarColor:0};
 const T={hb:null,prune:null,typing:null,rebuild:null,search:null};
-const EMOJIS=['😀','😁','😂','🤣','😊','😍','😘','😜','😎','🥳','','🤔','','😅','😴','🤫','😱','😡','👍','👎','👏','🙏','💪','✌️','👀','','❤️','','💛','💚','💙','💜','🖤','💔','✨','🔥','','','','','','☕','','⭐','','🫡'];
+const EMOJIS=['😀','😁','😂','🤣','😊','😍','😘','😜','😎','🥳','','','','😅','😴','🤫','😱','😡','👍','','👏','','💪','✌️','👀','','❤️','','💛','💚','💙','💜','','💔','✨','','','','','','','☕','','⭐','','🫡'];
 const QUICK=['❤️','😂','🔥',''];
 const URLRE=/(https?:\/\/[^\s<]+[^\s<.,:;"')\]])/g;
 const searchState={q:'',hits:[],idx:-1};
@@ -757,7 +750,7 @@ function renderReactions(mid,el){
 
 function writePresence(extra={}){
   if(!S.joined)return;const p={user:S.name,avatar:S.avatar,avatarColor:S.avatarColor,seen:now(),typing:S.typingSent,...extra};
-  S.presence.set(uid,p);publish({kind:'presence',data:p});ensureMeta(S.room);renderPeople();renderTyping();
+  S.presence.set(uid,p);publish({kind:'presence',data:p});renderPeople();renderTyping();
 }
 function applyPresence(u,p){if(!p||typeof p!=='object')return;S.presence.set(u,{user:String(p.user||'?'),avatar:String(p.avatar||''),avatarColor:+p.avatarColor||0,seen:+p.seen||0,typing:!!p.typing});renderPeople();renderTyping();}
 function onlineList(){
@@ -794,26 +787,20 @@ function renderNet(){
   const title={ok:'Terhubung — chat lintas perangkat aktif',off:'Tidak ada koneksi internet',local:'Mode lokal antar-tab browser',wait:'Menyambung ke server chat'}[mode];
   [$('#netChip'),$('#netChipLobby')].forEach(ch=>{ch.className='net-chip '+mode+(ch.id==='netChip'?' small':'');ch.innerHTML='<i></i>'+label;ch.title=title;});
   $('#offlineBar').classList.toggle('hidden',mode==='ok');
-  const bj=$('#btnJoin');if(bj&&!bj.dataset.busy)bj.disabled=!anyConnected();
 }
 
-function setJoinBusy(b){const btn=$('#btnJoin');btn.dataset.busy=b?'1':'';btn.disabled=b||!anyConnected();btn.innerHTML=b?'Memeriksa room…':'Gabung ke Room '+icon('users');}
-function joinChat(code){
+function joinChat(raw){
   const name=$('#nameInput').value.trim();
   if(name.length<2){$('#nameFld').classList.add('invalid');$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);$('#nameInput').focus();return;}
   if(!S.avatar){toast('Pilih avatar dulu','🙂');return;}
-  code=normCode(code);
-  if(code.length<3){setTab('join');$('#codeFld').classList.add('invalid');$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);$('#codeInput').focus();return;}
-  const own=created.has(code);
-  const proceed=()=>{ensureMeta(code);doJoin(code,name);};
-  if(own){proceed();return;}
-  if(!anyConnected()){toast('Belum terhubung ke server. Tunggu status Online lalu coba lagi.','📡');return;}
-  setJoinBusy(true);
-  verifyRoom(code,ok=>{
-    setJoinBusy(false);
-    if(ok){toast('Room ditemukan','✅');proceed();}
-    else{$('#codeFld').classList.add('invalid');$('#codeFld .err').textContent='Kode room tidak terdaftar / pembuat room sedang offline. Gunakan kode/link yang dibuat lewat tombol Buat Room.';$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);toast('Kode room tidak terdaftar','🚫');}
-  });
+  const code=formatCodeInput(raw);
+  if(!isValidCode(code)){
+    setTab('join');$('#codeFld').classList.add('invalid');
+    $('#codeFld .err').textContent='Kode tidak valid. Hanya kode buatan tombol Buat Room (format XXX-XXX-XXX) yang diterima.';
+    $('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);
+    toast('Kode room tidak valid','🚫');return;
+  }
+  ensureMeta(code);doJoin(code,name);
 }
 function doJoin(code,name){
   localStorage.setItem('qc-name',name);
@@ -821,7 +808,7 @@ function doJoin(code,name){
   S.msgs.clear();S.order=[];S.presence.clear();S.reactRaw={};S.unread=0;S.editId=null;S.typingSent=false;
   $('#msgList').innerHTML='';$('#editBar').classList.add('hidden');updateNewPill();
   clients.forEach(c=>{if(c&&c.connected){try{c.subscribe(chatTopic(code),{qos:0});}catch(e){}}});
-  clearInterval(T.hb);clearInterval(T.prune);T.hb=setInterval(()=>writePresence(),12000);T.prune=setInterval(()=>{renderPeople();renderTyping();},5000);
+  clearInterval(T.hb);clearInterval(T.prune);T.hb=setInterval(()=>writePresence(),8000);T.prune=setInterval(()=>{renderPeople();renderTyping();},5000);
   $('#lobby').classList.add('hidden');$('#chat').classList.remove('hidden');document.body.classList.add('chat-mode');
   $('#roomTitle').textContent=code;document.title='#'+code+' — QuickChat';
   const rc=colorOf(code);$('#roomAvatar').style.background=`linear-gradient(135deg,rgba(255,255,255,.28),rgba(0,0,0,.12)),${rc}`;$('#roomAvatar').textContent=initials(code.replace(/-/g,' '));
@@ -845,11 +832,10 @@ function doLeave(){
 
 function setTab(which){const join=which==='join';$('#tabs').classList.toggle('join',join);$('#tabCreate').classList.toggle('on',!join);$('#tabJoin').classList.toggle('on',join);$('#tabCreate').setAttribute('aria-selected',!join);$('#tabJoin').setAttribute('aria-selected',join);$('#paneCreate').classList.toggle('hidden',join);$('#paneJoin').classList.toggle('hidden',!join);}
 function generateCode(){
-  if(!anyConnected()){toast('Tunggu status Online dulu supaya kode terdaftar di server.','📡');return;}
   S.pendingCode=newRoomCode();ensureMeta(S.pendingCode);
   $('#genCode').textContent=S.pendingCode;const link=shareLink(S.pendingCode);$('#genLink').value=link;renderQR($('#genQR'),link,128);
   $('#roomBox').classList.remove('hidden');$('#btnEnter').classList.remove('hidden');$('#btnGenerate').classList.add('hidden');Sound.play('react');
-  toast('Kode room dibuat & terdaftar','✅');
+  toast('Kode room dibuat','✅');
 }
 function autoGrow(){const ta=$('#input');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';}
 function updateSendBtn(){const has=$('#input').value.trim().length>0,b=$('#btnSend');b.disabled=!has;b.innerHTML=icon(S.editId?'check':'send',19);const len=$('#input').value.length,cc=$('#charCount');cc.classList.toggle('hidden',len<1800);cc.textContent=len+'/2000';}
@@ -876,10 +862,10 @@ function init(){
   S.avatarColor=savedColor!=null?+savedColor:Math.floor(Math.random()*COLORS.length);if(Number.isNaN(S.avatarColor))S.avatarColor=0;S.avatarColor=((S.avatarColor%COLORS.length)+COLORS.length)%COLORS.length;
   buildAvatarPicker();
   if(location.protocol==='file:')$('#jcFoot').textContent='💡 Deploy ke GitHub Pages agar link undangan bisa dibuka di perangkat lain.';
-  const invited=normCode(new URLSearchParams(location.search).get('room')||'');
+  const invited=formatCodeInput(new URLSearchParams(location.search).get('room')||'');
   if(invited.length>=3){
     setTab('join');$('#codeInput').value=invited;$('#inviteCode').textContent=invited;$('#inviteBanner').classList.remove('hidden');
-    if(savedName.trim().length>=2&&S.avatar){let tries=0;const tryAuto=()=>{if(S.joined)return;if(anyConnected())joinChat(invited);else if(tries++<20)setTimeout(tryAuto,500);};setTimeout(tryAuto,700);}
+    if(savedName.trim().length>=2&&S.avatar)setTimeout(()=>{if(!S.joined)joinChat(invited);},600);
   }
   $$('.sound-btn').forEach(b=>b.onclick=()=>Sound.toggle());
   $('#nameInput').addEventListener('input',()=>{$('#nameFld').classList.remove('invalid');updateProfilePreview();});
