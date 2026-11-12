@@ -4,42 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070D">
-<title>QuickChat — Pilih Avatar & Mulai Ngobrol</title>
+<title>QuickChat — by Ryo XD</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='2' y='2' width='44' height='44' rx='13' fill='%23C8F04B'/%3E%3Cpath d='M14 11h20a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7h-9l-8 7v-7h-3a7 7 0 0 1-7-7v-9a7 7 0 0 1 7-7z' fill='%2306090F'/%3E%3Cpath d='M27 15l-8 11h5l-2 8 8-11h-5l2-8z' fill='%23C8F04B'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-
 <style>
 :root{
-  --ink0:#04060C; --ink1:#0A0F1C; --ink2:#11182A;
-  --line:rgba(163,180,220,.15); --glass:rgba(148,170,220,.065);
-  --text:#ECF3E8; --muted:#94A1B9;
-  --lime:#C8F04B; --teal:#5EEAD4; --cyan:#53D8FF; --magenta:#FF6AC1;
-  --violet:#9D8CFF; --amber:#FFC24B; --green:#4ADE80; --red:#FF6B6B; --orange:#FF9F45;
-  --disp:'Unbounded',sans-serif; --body:'Space Grotesk',sans-serif; --mono:'JetBrains Mono',monospace;
+  --ink0:#04060C;--ink1:#0A0F1C;--ink2:#11182A;
+  --line:rgba(163,180,220,.15);--glass:rgba(148,170,220,.065);
+  --text:#ECF3E8;--muted:#94A1B9;
+  --lime:#C8F04B;--teal:#5EEAD4;--cyan:#53D8FF;--magenta:#FF6AC1;
+  --violet:#9D8CFF;--amber:#FFC24B;--green:#4ADE80;--red:#FF6B6B;--orange:#FF9F45;
+  --disp:'Unbounded',sans-serif;--body:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{
-  min-height:100vh;min-height:100dvh;background:var(--ink0);color:var(--text);
-  font-family:var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased
-}
+body{min-height:100vh;min-height:100dvh;background:var(--ink0);color:var(--text);font-family:var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
 body.chat-mode{overflow:hidden}
 button,input,textarea{font:inherit}
 button{color:inherit}
 ::selection{background:var(--lime);color:#081018}
 :focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .hidden{display:none!important}
-
-/* Scrollbar khas tema */
 *{scrollbar-width:thin;scrollbar-color:rgba(200,240,75,.45) rgba(8,12,22,.5)}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:rgba(8,12,22,.5)}
 ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--lime),var(--cyan));border-radius:99px;border:3px solid rgba(8,12,22,.5);background-clip:padding-box}
 ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#e2ff72,var(--cyan));border:3px solid rgba(8,12,22,.5);background-clip:padding-box}
 
-/* Background hidup */
 .bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
 .blob{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform}
 .b1{width:54vmax;height:54vmax;left:-16vmax;top:-20vmax;background:radial-gradient(circle,rgba(200,240,75,.17),transparent 66%);animation:drift1 26s ease-in-out infinite alternate}
@@ -54,7 +47,6 @@ button{color:inherit}
 @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.85}}
 .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
 
-/* Komponen */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:13px;padding:13px 18px;font-weight:700;font-size:15px;cursor:pointer;transition:.18s}
 .btn:active{transform:scale(.97)}
 .btn.primary{background:linear-gradient(135deg,var(--lime),var(--teal));color:#081018;box-shadow:0 9px 28px rgba(200,240,75,.23)}
@@ -85,13 +77,12 @@ button{color:inherit}
 .fld.invalid .err{display:block}
 .net-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;background:var(--glass);padding:5px 10px;color:var(--muted);font:700 10.5px var(--mono);letter-spacing:.04em}
 .net-chip i{width:7px;height:7px;border-radius:50%;flex:none}
-.net-chip.ok{color:var(--lime)} .net-chip.ok i{background:var(--lime);box-shadow:0 0 9px var(--lime);animation:pulse 2s infinite}
-.net-chip.off,.net-chip.wait{color:var(--amber)} .net-chip.off i,.net-chip.wait i{background:var(--amber);box-shadow:0 0 9px var(--amber)}
-.net-chip.local{color:var(--cyan)} .net-chip.local i{background:var(--cyan);box-shadow:0 0 9px var(--cyan)}
+.net-chip.ok{color:var(--lime)}.net-chip.ok i{background:var(--lime);box-shadow:0 0 9px var(--lime);animation:pulse 2s infinite}
+.net-chip.off,.net-chip.wait{color:var(--amber)}.net-chip.off i,.net-chip.wait i{background:var(--amber);box-shadow:0 0 9px var(--amber)}
+.net-chip.local{color:var(--cyan)}.net-chip.local i{background:var(--cyan);box-shadow:0 0 9px var(--cyan)}
 .net-chip.small{padding:2px 8px;font-size:9.5px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-/* Lobby */
 .lobby{position:relative;z-index:2;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 .lobby-top{display:flex;align-items:center;justify-content:space-between;padding:20px clamp(18px,4vw,36px)}
 .brand{display:flex;align-items:center;gap:11px}
@@ -124,7 +115,6 @@ button{color:inherit}
 .feats{display:flex;flex-wrap:wrap;gap:8px;list-style:none}
 .feats li{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:99px;background:var(--glass);padding:8px 13px;font-size:12.5px;font-weight:600}
 .feats li i{width:7px;height:7px;border-radius:50%;flex:none}
-
 .join-card{border:1px solid var(--line);border-radius:24px;background:linear-gradient(165deg,rgba(255,255,255,.075),rgba(255,255,255,.02));backdrop-filter:blur(20px);padding:clamp(20px,3vw,30px);box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08)}
 .step-title{display:flex;align-items:center;gap:9px;margin-bottom:13px;font-size:13.5px;font-weight:700}
 .step-title small{margin-left:auto;color:var(--muted);font-size:11px;font-weight:500}
@@ -170,6 +160,7 @@ button{color:inherit}
 .rb-qr img,.sb-qr img,.sm-qr img{display:block;border-radius:11px;background:#fff;padding:7px;image-rendering:pixelated}
 .rb-qr span{color:var(--muted);font-size:12px;line-height:1.5}
 .jc-foot{margin-top:16px;color:rgba(148,161,185,.72);font-size:11.5px;text-align:center}
+.dev-credit{margin-top:6px}
 .reveal{opacity:0;transform:translateY(18px);animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards}
 .d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.26s}.d4{animation-delay:.36s}
 @keyframes rise{to{opacity:1;transform:none}}
@@ -177,7 +168,6 @@ button{color:inherit}
 .shake{animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
 
-/* Chat */
 .chat{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;height:100dvh;animation:chatIn .35s ease}
 @keyframes chatIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
 .chat-top{position:relative;z-index:20;display:flex;align-items:center;gap:12px;height:66px;flex:none;border-bottom:1px solid var(--line);background:rgba(8,12,22,.8);backdrop-filter:blur(18px);padding:0 clamp(10px,2vw,18px)}
@@ -264,7 +254,6 @@ button{color:inherit}
 .emoji-pop button{height:36px;border:0;border-radius:9px;background:none;font-size:20px;cursor:pointer;transition:.12s}
 .emoji-pop button:hover{transform:scale(1.18);background:rgba(148,170,220,.12)}
 
-/* Sidebar */
 .sidebar{min-height:0;display:flex;flex-direction:column;gap:18px;overflow-y:auto;border-left:1px solid var(--line);background:rgba(9,13,24,.6);backdrop-filter:blur(12px);padding:18px}
 .sb-head{display:none;align-items:center;justify-content:space-between;font-size:15px;font-weight:700}
 .sb-card{border:1px solid transparent;border-radius:16px;background:linear-gradient(#0b1120,#0b1120) padding-box,linear-gradient(140deg,var(--lime),var(--cyan) 60%,var(--magenta)) border-box;padding:14px}
@@ -285,10 +274,10 @@ button{color:inherit}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border:1px solid var(--line);border-radius:14px;background:var(--glass);padding:13px 8px;text-align:center}
 .stats span{display:block;font-size:15px;font-weight:700}
 .stats small{color:var(--muted);font:700 9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.sb-dev{color:var(--muted);font-size:11.5px;text-align:center}
 .sidebar .btn.danger{margin-top:auto}
 .scrim{position:fixed;inset:0;z-index:55;background:rgba(3,5,10,.62);backdrop-filter:blur(2px)}
 
-/* Modal & toast */
 .modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px}
 .m-scrim{position:absolute;inset:0;background:rgba(3,5,10,.72);backdrop-filter:blur(6px)}
 .dialog{position:relative;width:min(420px,100%);border:1px solid var(--line);border-radius:22px;background:rgba(11,17,32,.98);padding:26px;box-shadow:0 40px 100px rgba(0,0,0,.6);animation:pop .3s cubic-bezier(.3,1.3,.5,1)}
@@ -329,7 +318,6 @@ button{color:inherit}
   .room-sub .me-chip{display:none}
   .m-body{max-width:82%}
   .blob{filter:blur(70px);opacity:.8}
-  .avatar-grid{grid-template-columns:repeat(8,1fr)}
   .s-count{display:none}
 }
 @media(prefers-reduced-motion:reduce){
@@ -338,7 +326,6 @@ button{color:inherit}
 }
 </style>
 </head>
-
 <body>
 <div class="bg" aria-hidden="true">
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -363,7 +350,6 @@ button{color:inherit}
       <div class="eyebrow reveal"><i></i>AVATAR · ROOM · REAL-TIME</div>
       <h1 class="reveal d1">Pilih wajahmu,<br><em>lalu ngobrol.</em></h1>
       <p class="lede reveal d2">Tentukan avatar dan nama pengguna sebelum masuk room. Setelah itu, bagikan kode atau QR dan chat lintas perangkat dari satu file HTML.</p>
-
       <div class="demo reveal d3" aria-hidden="true">
         <div class="demo-msg dm1"><div class="d-av" style="background:#53D8FF">🦊</div><div><div class="d-bubble">Halo dari laptop 👋</div><span class="d-tag">Andi · 💻 Laptop</span></div></div>
         <div class="demo-typing"><span class="t-dots"><i></i><i></i><i></i></span>Sari mengetik…</div>
@@ -371,7 +357,6 @@ button{color:inherit}
         <div class="demo-sys"><span>Sari bergabung ke room</span></div>
         <div class="demo-msg dm3"><div class="d-av" style="background:#53D8FF">🦊</div><div><div class="d-bubble">Kirim catatan rapatnya dong 🔥</div><span class="d-tag">Andi · 💻 Laptop</span></div></div>
       </div>
-
       <ul class="feats reveal d4">
         <li><i style="background:var(--lime)"></i>Avatar & nama wajib</li>
         <li><i style="background:var(--cyan)"></i>Undang via link & QR</li>
@@ -381,7 +366,6 @@ button{color:inherit}
 
     <section class="join-card reveal d2" id="joinCard">
       <div class="step-title"><span class="step-num">1</span>Profil kamu <small>wajib sebelum chat</small></div>
-
       <div class="profile-top">
         <div class="avatar-preview" id="avatarPreview">🦊</div>
         <div class="profile-copy">
@@ -391,26 +375,22 @@ button{color:inherit}
         </div>
         <button id="btnRandomAvatar" class="mini-btn" type="button"></button>
       </div>
-
       <div class="avatar-grid" id="avatarGrid" aria-label="Pilihan avatar"></div>
       <div class="color-row" id="colorRow"><span class="color-label">WARNA</span></div>
-
       <label class="fld" id="nameFld">
         <span>Nama pengguna</span>
-        <input id="nameInput" maxlength="24" placeholder="cth: Andi Pratama" autocomplete="nickname">
+        <input id="nameInput" maxlength="24" placeholder="Ryo XD" autocomplete="nickname">
         <small class="err">Nama pengguna minimal 2 karakter.</small>
       </label>
 
       <div class="room-step">
         <div class="step-title"><span class="step-num">2</span>Room chat</div>
         <div id="inviteBanner" class="invite hidden">🎫 Undangan ke room <b id="inviteCode"></b></div>
-
         <div class="tabs" id="tabs" role="tablist">
           <i class="thumb"></i>
           <button id="tabCreate" class="on" role="tab" aria-selected="true"></button>
           <button id="tabJoin" role="tab" aria-selected="false"></button>
         </div>
-
         <div id="paneCreate" class="pane">
           <p class="pane-hint">Kode acak dibuat otomatis. Bagikan sebelum masuk, atau pakai tombol Undang di dalam room.</p>
           <button id="btnGenerate" class="btn primary" type="button"></button>
@@ -422,7 +402,6 @@ button{color:inherit}
           </div>
           <button id="btnEnter" class="btn primary hidden" type="button"></button>
         </div>
-
         <div id="paneJoin" class="pane hidden">
           <label class="fld" id="codeFld">
             <span>Kode room</span>
@@ -433,8 +412,8 @@ button{color:inherit}
           <p class="pane-hint center">Minta kode atau link undangan dari temanmu.</p>
         </div>
       </div>
-
       <p class="jc-foot" id="jcFoot">🔒 Avatar & nama disimpan di perangkat ini. Tidak perlu akun.</p>
+      <p class="jc-foot dev-credit">Developer: Ryo XD</p>
     </section>
   </div>
 </main>
@@ -458,9 +437,7 @@ button{color:inherit}
       <button id="btnMembers" class="icon-btn members-btn" type="button" aria-label="Detail room"><i id="memberBadge">1</i></button>
     </div>
   </header>
-
   <div id="offlineBar" class="offline-bar hidden">⚠ Koneksi internet terputus — pesan akan tersinkron saat kembali online.</div>
-
   <div id="searchBar" class="search-bar hidden">
     <span class="s-ic" id="searchIc"></span>
     <input id="searchInput" placeholder="Cari pesan atau nama pengguna…" autocomplete="off">
@@ -469,7 +446,6 @@ button{color:inherit}
     <button id="btnSearchNext" class="icon-btn sm" type="button" aria-label="Hasil berikutnya"></button>
     <button id="btnSearchClear" class="icon-btn sm" type="button" aria-label="Tutup pencarian"></button>
   </div>
-
   <div class="chat-body">
     <section class="msg-col">
       <div id="msgScroll" class="msg-scroll"><div id="msgList" class="msg-list" role="log" aria-label="Daftar pesan"></div></div>
@@ -483,7 +459,6 @@ button{color:inherit}
         <button id="btnSend" class="send-btn" type="button" disabled title="Kirim" aria-label="Kirim pesan"></button>
       </div>
     </section>
-
     <aside id="sidebar" class="sidebar" aria-label="Detail room">
       <div class="sb-head"><span>Detail Room</span><button id="btnCloseSb" class="icon-btn sm" type="button" aria-label="Tutup"></button></div>
       <div class="sb-card">
@@ -494,6 +469,7 @@ button{color:inherit}
       </div>
       <div class="sb-sec"><span class="sb-label">ONLINE — <b id="sbCount">1</b></span><ul id="peopleList" class="people"></ul></div>
       <div class="stats"><div><span id="statMsgs">0</span><small>pesan</small></div><div><span>P2P</span><small>relay</small></div><div><span id="statSince">—</span><small>gabung</small></div></div>
+      <div class="sb-dev">Developer: Ryo XD</div>
       <button id="btnLeave2" class="btn danger full" type="button"></button>
     </aside>
     <div id="sbScrim" class="scrim hidden"></div>
@@ -504,7 +480,7 @@ button{color:inherit}
   <div class="m-scrim" data-close="shareModal"></div>
   <div class="dialog">
     <button class="icon-btn sm d-close" type="button" data-close="shareModal" aria-label="Tutup"></button>
-    <h3>Undang teman 🎉</h3>
+    <h3>Undang teman</h3>
     <p class="d-sub">Scan QR atau kirim link ini. Perangkat yang membukanya langsung diarahkan ke room yang sama.</p>
     <div class="sm-code-row"><code id="smCode">—</code><button id="btnSmCode" class="icon-btn sm" type="button" title="Salin kode"></button></div>
     <div class="sm-qr"><img id="smQR" width="176" height="176" alt="QR undangan room"></div>
@@ -531,17 +507,15 @@ button{color:inherit}
 <script>
 (() => {
 'use strict';
-
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const now = () => Date.now();
-const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const rand = n => { const b=new Uint8Array(n); crypto.getRandomValues(b); return [...b].map(x=>ALPHABET[x%ALPHABET.length]).join(''); };
-const newRoomCode = () => rand(3)+'-'+rand(3)+'-'+rand(3);
-const normCode = s => String(s||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').replace(/-{2,}/g,'-').replace(/^-+|-+$/g,'').slice(0,32);
-const COLORS = ['#53D8FF','#FF6AC1','#9D8CFF','#FFC24B','#4ADE80','#FF9F45','#C8F04B','#FF6B6B'];
-const AVATARS = [
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const now=()=>Date.now();
+const ALPHABET='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const rand=n=>{const b=new Uint8Array(n);crypto.getRandomValues(b);return[...b].map(x=>ALPHABET[x%ALPHABET.length]).join('');};
+const newRoomCode=()=>rand(3)+'-'+rand(3)+'-'+rand(3);
+const normCode=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').replace(/-{2,}/g,'-').replace(/^-+|-+$/g,'').slice(0,32);
+const COLORS=['#53D8FF','#FF6AC1','#9D8CFF','#FFC24B','#4ADE80','#FF9F45','#C8F04B','#FF6B6B'];
+const AVATARS=[
   {e:'🦊',n:'Rubah'},{e:'🐼',n:'Panda'},{e:'🐱',n:'Kucing'},{e:'🐸',n:'Katak'},
   {e:'🦄',n:'Unicorn'},{e:'🤖',n:'Robot'},{e:'👽',n:'Alien'},{e:'👻',n:'Hantu'},
   {e:'🐯',n:'Macan'},{e:'🦁',n:'Singa'},{e:'🐨',n:'Koala'},{e:'🐙',n:'Gurita'},
@@ -549,28 +523,20 @@ const AVATARS = [
   {e:'🐵',n:'Monyet'},{e:'🐝',n:'Lebah'},{e:'🦈',n:'Hiu'},{e:'🦖',n:'Dino'},
   {e:'🧑‍🚀',n:'Astronaut'},{e:'🥷',n:'Ninja'},{e:'🧙',n:'Penyihir'},{e:'😈',n:'Iblis'}
 ];
-const hash = s => { let h=0; for(const c of String(s)) h=(h*31+c.charCodeAt(0))>>>0; return h; };
-const colorOf = n => COLORS[hash(String(n).toLowerCase())%COLORS.length];
-const initials = n => String(n).trim().split(/\s+/).slice(0,2).map(w=>[...w][0]?.toUpperCase()||'').join('')||'?';
-const pad = n => String(n).padStart(2,'0');
-const fmtTime = t => { const d=new Date(t); return pad(d.getHours())+':'+pad(d.getMinutes()); };
-const dayKey = t => { const d=new Date(t); return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(); };
-function dayLabel(t){
-  const n=now(); if(dayKey(t)===dayKey(n)) return 'Hari ini';
-  if(dayKey(t)===dayKey(n-86400000)) return 'Kemarin';
-  return new Date(t).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:new Date(t).getFullYear()!==new Date(n).getFullYear()?'numeric':undefined});
-}
-const isTouch = () => matchMedia('(hover:none)').matches;
-
-function avatarMarkup(name, emoji, colorIdx, cls){
-  const idx = (colorIdx==null || Number.isNaN(+colorIdx)) ? hash(name)%COLORS.length : ((+colorIdx%COLORS.length)+COLORS.length)%COLORS.length;
-  const c = COLORS[idx];
-  const content = emoji || initials(name);
+const hash=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h;};
+const colorOf=n=>COLORS[hash(String(n).toLowerCase())%COLORS.length];
+const initials=n=>String(n).trim().split(/\s+/).slice(0,2).map(w=>[...w][0]?.toUpperCase()||'').join('')||'?';
+const pad=n=>String(n).padStart(2,'0');
+const fmtTime=t=>{const d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes());};
+const dayKey=t=>{const d=new Date(t);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();};
+function dayLabel(t){const n=now();if(dayKey(t)===dayKey(n))return'Hari ini';if(dayKey(t)===dayKey(n-86400000))return'Kemarin';return new Date(t).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:new Date(t).getFullYear()!==new Date(n).getFullYear()?'numeric':undefined});}
+const isTouch=()=>matchMedia('(hover:none)').matches;
+function avatarMarkup(name,emoji,colorIdx,cls){
+  const idx=(colorIdx==null||Number.isNaN(+colorIdx))?hash(name)%COLORS.length:((+colorIdx%COLORS.length)+COLORS.length)%COLORS.length;
+  const c=COLORS[idx],content=emoji||initials(name);
   return `<div class="${cls}${emoji?' is-emoji':''}" style="background:linear-gradient(145deg,rgba(255,255,255,.28),rgba(0,0,0,.12)),${c}">${esc(content)}</div>`;
 }
-
-/* Ikon */
-const IC = {
+const IC={
   zap:'<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
   copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
   check:'<path d="M20 6L9 17l-5-5"/>',
@@ -590,184 +556,134 @@ const IC = {
   search:'<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>',
   share:'<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/>'
 };
-const icon = (n,s=18) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const icon=(n,s=18)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+let uid=sessionStorage.getItem('qc-uid');if(!uid){uid=rand(10);sessionStorage.setItem('qc-uid',uid);}
 
-let uid = sessionStorage.getItem('qc-uid');
-if(!uid){ uid=rand(10); sessionStorage.setItem('qc-uid',uid); }
-
-const Sound = {
-  ctx:null, on:localStorage.getItem('qc-sound')!=='0',
-  ensure(){ const A=window.AudioContext||window.webkitAudioContext; if(!this.ctx&&A)this.ctx=new A(); if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume().catch(()=>{}); },
+const Sound={
+  ctx:null,on:localStorage.getItem('qc-sound')!=='0',
+  ensure(){const A=window.AudioContext||window.webkitAudioContext;if(!this.ctx&&A)this.ctx=new A();if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume().catch(()=>{});},
   play(kind){
-    if(!this.on)return; this.ensure(); const c=this.ctx; if(!c)return; const t=c.currentTime;
-    const blip=(f0,f1,d,vol,type,at=0)=>{ const o=c.createOscillator(),g=c.createGain(); o.type=type; o.frequency.setValueAtTime(f0,t+at); o.frequency.exponentialRampToValueAtTime(Math.max(f1,1),t+at+d); g.gain.setValueAtTime(.0001,t+at); g.gain.exponentialRampToValueAtTime(vol,t+at+.012); g.gain.exponentialRampToValueAtTime(.0001,t+at+d); o.connect(g).connect(c.destination); o.start(t+at); o.stop(t+at+d+.03); };
+    if(!this.on)return;this.ensure();const c=this.ctx;if(!c)return;const t=c.currentTime;
+    const blip=(f0,f1,d,vol,type,at=0)=>{const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f0,t+at);o.frequency.exponentialRampToValueAtTime(Math.max(f1,1),t+at+d);g.gain.setValueAtTime(.0001,t+at);g.gain.exponentialRampToValueAtTime(vol,t+at+.012);g.gain.exponentialRampToValueAtTime(.0001,t+at+d);o.connect(g).connect(c.destination);o.start(t+at);o.stop(t+at+d+.03);};
     if(kind==='send')blip(540,820,.1,.05,'sine');
     else if(kind==='recv')blip(700,430,.11,.045,'sine');
     else if(kind==='join'){blip(520,520,.09,.04,'triangle');blip(780,780,.12,.04,'triangle',.09);}
     else if(kind==='react')blip(950,1150,.06,.035,'triangle');
   },
-  toggle(){ this.on=!this.on; localStorage.setItem('qc-sound',this.on?'1':'0'); updateSoundButtons(); if(this.on)this.play('react'); toast(this.on?'Suara aktif':'Suara dimatikan',this.on?'🔊':'🔇'); }
+  toggle(){this.on=!this.on;localStorage.setItem('qc-sound',this.on?'1':'0');updateSoundButtons();if(this.on)this.play('react');toast(this.on?'Suara aktif':'Suara dimatikan',this.on?'🔊':'');}
 };
-function updateSoundButtons(){ $$('.sound-btn').forEach(b=>{ b.innerHTML=icon(Sound.on?'vol':'volx'); b.setAttribute('aria-pressed',Sound.on); b.title=Sound.on?'Matikan suara':'Aktifkan suara'; }); }
-
+function updateSoundButtons(){ $$('.sound-btn').forEach(b=>{b.innerHTML=icon(Sound.on?'vol':'volx');b.setAttribute('aria-pressed',Sound.on);b.title=Sound.on?'Matikan suara':'Aktifkan suara';}); }
 function toast(msg,emoji='✨',action){
-  const el=document.createElement('div'); el.className='toast';
+  const el=document.createElement('div');el.className='toast';
   el.innerHTML=`<span>${emoji}</span><span class="t-msg">${esc(msg)}</span>`;
-  const dismiss=()=>{ el.classList.remove('in'); setTimeout(()=>el.remove(),260); };
-  if(action){ const b=document.createElement('button'); b.className='t-act'; b.textContent=action.label; b.onclick=()=>{action.fn();dismiss();}; el.appendChild(b); }
-  $('#toasts').appendChild(el); requestAnimationFrame(()=>el.classList.add('in')); setTimeout(dismiss,action?5200:2600);
+  const dismiss=()=>{el.classList.remove('in');setTimeout(()=>el.remove(),260);};
+  if(action){const b=document.createElement('button');b.className='t-act';b.textContent=action.label;b.onclick=()=>{action.fn();dismiss();};el.appendChild(b);}
+  $('#toasts').appendChild(el);requestAnimationFrame(()=>el.classList.add('in'));setTimeout(dismiss,action?5200:2600);
 }
 
-/* Relay Gun: ganti dengan relay milikmu jika relay publik sedang tidak tersedia. */
-const PEERS = ['https://relay.peer.ooo/gun','https://gun-relay.glitch.me/gun','https://gun-manhattan.herokuapp.com/gun'];
-let gun=null, relayCount=0;
-try{ if(typeof Gun!=='undefined') gun=Gun({peers:PEERS,localStorage:true,radisk:false}); }catch(e){}
-if(gun){
-  const live=new Set();
-  gun.on('hi',p=>{live.add(p?.id||p?.url||'peer');relayCount=live.size;renderNet();});
-  gun.on('bye',p=>{live.delete(p?.id||p?.url||'peer');relayCount=live.size;renderNet();});
-}
-let bc=null; try{bc=new BroadcastChannel('quickchat-v2');}catch(e){}
+const PEERS=['https://relay.peer.ooo/gun','https://gun-relay.glitch.me/gun','https://gun-manhattan.herokuapp.com/gun'];
+let gun=null,relayCount=0;
+try{if(typeof Gun!=='undefined')gun=Gun({peers:PEERS,localStorage:true,radisk:false});}catch(e){}
+if(gun){const live=new Set();gun.on('hi',p=>{live.add(p?.id||p?.url||'peer');relayCount=live.size;renderNet();});gun.on('bye',p=>{live.delete(p?.id||p?.url||'peer');relayCount=live.size;renderNet();});}
+let bc=null;try{bc=new BroadcastChannel('quickchat-v2');}catch(e){}
 
-const S = {
-  room:null,name:'',token:0,joined:false,msgs:new Map(),order:[],presence:new Map(),reactRaw:{},
-  unread:0,initialUntil:0,editId:null,typingSent:false,pendingCode:null,
-  avatar:AVATARS[0].e,avatarColor:0
-};
+const S={room:null,name:'',token:0,joined:false,msgs:new Map(),order:[],presence:new Map(),reactRaw:{},unread:0,initialUntil:0,editId:null,typingSent:false,pendingCode:null,avatar:AVATARS[0].e,avatarColor:0};
 let nodes=null,msgChain=null,presChain=null,reactOuter=null,reactInner=[],reactMids=new Set();
-const T = {hb:null,prune:null,typing:null,rebuild:null,search:null};
-const EMOJIS = ['😀','😁','😂','🤣','😊','😍','😘','😜','😎','🥳','🤩','🤔','😭','😅','😴','','😱','😡','👍','👎','👏','','💪','️','👀','🫶','❤️','🧡','💛','💚','💙','💜','💔','✨','🔥','','🎉','','🚀','','☕','','⭐',''];
-const QUICK = ['❤️','😂','🔥','👍'];
-const URLRE = /(https?:\/\/[^\s<]+[^\s<.,:;"')\]])/g;
-const searchState = {q:'',hits:[],idx:-1};
+const T={hb:null,prune:null,typing:null,rebuild:null,search:null};
+const EMOJIS=['😀','😁','😂','🤣','😊','😍','😘','😜','😎','🥳','','🤔','','😅','😴','🤫','😱','😡','👍','👎','👏','🙏','💪','✌️','👀','','❤️','','💛','💚','💙','💜','🖤','💔','✨','🔥','','🎉','','','','☕','','⭐','','🫡'];
+const QUICK=['❤️','😂','🔥',''];
+const URLRE=/(https?:\/\/[^\s<]+[^\s<.,:;"')\]])/g;
+const searchState={q:'',hits:[],idx:-1};
+const scroller=()=>$('#msgScroll');
+const nearBottom=()=>{const s=scroller();return s.scrollHeight-s.scrollTop-s.clientHeight<140;};
+const scrollBottom=smooth=>{const s=scroller();s.scrollTo({top:s.scrollHeight,behavior:smooth?'smooth':'auto'});};
+const shareLink=code=>location.href.split(/[?#]/)[0]+'?room='+code;
 
-const scroller = () => $('#msgScroll');
-const nearBottom = () => { const s=scroller(); return s.scrollHeight-s.scrollTop-s.clientHeight<140; };
-const scrollBottom = smooth => { const s=scroller(); s.scrollTo({top:s.scrollHeight,behavior:smooth?'smooth':'auto'}); };
-const shareLink = code => location.href.split(/[?#]/)[0]+'?room='+code;
+function qrSrc(url,size){if(typeof qrcode==='function'){try{const q=qrcode(0,'M');q.addData(url);q.make();const cell=Math.max(2,Math.floor((size-16)/q.getModuleCount()));return q.createDataURL(cell,4);}catch(e){}}return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent(url);}
+function renderQR(img,url,size){img.onerror=()=>{img.parentElement.style.display='none';};img.parentElement.style.display='';img.src=qrSrc(url,size);img.width=size;img.height=size;}
+function legacyCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove();}
+function copyText(t){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t).catch(()=>legacyCopy(t));legacyCopy(t);return Promise.resolve();}
+function flashBtn(btn,html){const old=btn.innerHTML;btn.innerHTML=html;setTimeout(()=>btn.innerHTML=old,1400);}
+function linkify(text){const frag=document.createDocumentFragment();let last=0;for(const m of text.matchAll(URLRE)){frag.append(text.slice(last,m.index));const a=document.createElement('a');a.href=m[0];a.target='_blank';a.rel='noopener noreferrer';a.textContent=m[0];frag.append(a);last=m.index+m[0].length;}frag.append(text.slice(last));return frag;}
 
-function qrSrc(url,size){
-  if(typeof qrcode==='function'){ try{ const q=qrcode(0,'M'); q.addData(url); q.make(); const cell=Math.max(2,Math.floor((size-16)/q.getModuleCount())); return q.createDataURL(cell,4); }catch(e){} }
-  return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent(url);
-}
-function renderQR(img,url,size){ img.onerror=()=>{img.parentElement.style.display='none';}; img.parentElement.style.display=''; img.src=qrSrc(url,size); img.width=size; img.height=size; }
-function legacyCopy(t){ const ta=document.createElement('textarea'); ta.value=t; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy')}catch(e){} ta.remove(); }
-function copyText(t){ if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t).catch(()=>legacyCopy(t)); legacyCopy(t); return Promise.resolve(); }
-function flashBtn(btn,html){ const old=btn.innerHTML; btn.innerHTML=html; setTimeout(()=>btn.innerHTML=old,1400); }
-function linkify(text){
-  const frag=document.createDocumentFragment(); let last=0;
-  for(const m of text.matchAll(URLRE)){ frag.append(text.slice(last,m.index)); const a=document.createElement('a'); a.href=m[0]; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent=m[0]; frag.append(a); last=m.index+m[0].length; }
-  frag.append(text.slice(last)); return frag;
-}
-
-/* Profil */
 function updateProfilePreview(){
   const n=S.joined?S.name:$('#nameInput').value.trim();
-  const av=$('#avatarPreview'); av.style.background=`linear-gradient(145deg,rgba(255,255,255,.3),rgba(0,0,0,.12)),${COLORS[S.avatarColor]}`; av.textContent=S.avatar;
+  const av=$('#avatarPreview');av.style.background=`linear-gradient(145deg,rgba(255,255,255,.3),rgba(0,0,0,.12)),${COLORS[S.avatarColor]}`;av.textContent=S.avatar;
   $('#previewName').textContent=n||'Nama kamu';
-  if(S.joined){ $('#meAv').innerHTML=avatarMarkup(S.name,S.avatar,S.avatarColor,'me-av'); $('#asName').textContent=S.name; }
+  if(S.joined){$('#meAv').innerHTML=avatarMarkup(S.name,S.avatar,S.avatarColor,'me-av');$('#asName').textContent=S.name;}
 }
 function syncPicker(){
   $$('.av-btn').forEach(b=>{const on=b.textContent===S.avatar;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',on);});
   $$('.color-dot').forEach((d,i)=>{const on=i===S.avatarColor;d.classList.toggle('selected',on);d.setAttribute('aria-pressed',on);});
   updateProfilePreview();
 }
-function popPreview(){ const a=$('#avatarPreview'); a.classList.remove('pop'); void a.offsetWidth; a.classList.add('pop'); }
-function pickAvatar(e){ S.avatar=e; localStorage.setItem('qc-avatar',e); syncPicker(); popPreview(); Sound.play('react'); }
-function pickColor(i){ S.avatarColor=i; localStorage.setItem('qc-avatar-color',i); syncPicker(); popPreview(); Sound.play('react'); }
-function randomProfile(){ S.avatar=AVATARS[Math.floor(Math.random()*AVATARS.length)].e; S.avatarColor=Math.floor(Math.random()*COLORS.length); localStorage.setItem('qc-avatar',S.avatar); localStorage.setItem('qc-avatar-color',S.avatarColor); syncPicker(); popPreview(); Sound.play('react'); }
+function popPreview(){const a=$('#avatarPreview');a.classList.remove('pop');void a.offsetWidth;a.classList.add('pop');}
+function pickAvatar(e){S.avatar=e;localStorage.setItem('qc-avatar',e);syncPicker();popPreview();Sound.play('react');}
+function pickColor(i){S.avatarColor=i;localStorage.setItem('qc-avatar-color',String(i));syncPicker();popPreview();Sound.play('react');}
+function randomProfile(){S.avatar=AVATARS[Math.floor(Math.random()*AVATARS.length)].e;S.avatarColor=Math.floor(Math.random()*COLORS.length);localStorage.setItem('qc-avatar',S.avatar);localStorage.setItem('qc-avatar-color',String(S.avatarColor));syncPicker();popPreview();Sound.play('react');}
 function buildAvatarPicker(){
-  const grid=$('#avatarGrid'); grid.innerHTML='';
-  AVATARS.forEach(a=>{ const b=document.createElement('button'); b.type='button'; b.className='av-btn'; b.textContent=a.e; b.title=a.n; b.setAttribute('aria-label','Pilih avatar '+a.n); b.onclick=()=>pickAvatar(a.e); grid.appendChild(b); });
-  const row=$('#colorRow'); row.querySelectorAll('.color-dot').forEach(d=>d.remove());
-  COLORS.forEach((c,i)=>{ const b=document.createElement('button'); b.type='button'; b.className='color-dot'; b.style.background=c; b.style.color=c; b.title='Warna avatar '+(i+1); b.setAttribute('aria-label','Pilih warna avatar '+(i+1)); b.onclick=()=>pickColor(i); row.appendChild(b); });
+  const grid=$('#avatarGrid');grid.innerHTML='';
+  AVATARS.forEach(a=>{const b=document.createElement('button');b.type='button';b.className='av-btn';b.textContent=a.e;b.title=a.n;b.setAttribute('aria-label','Pilih avatar '+a.n);b.onclick=()=>pickAvatar(a.e);grid.appendChild(b);});
+  const row=$('#colorRow');row.querySelectorAll('.color-dot').forEach(d=>d.remove());
+  COLORS.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.className='color-dot';b.style.background=c;b.style.color=c;b.title='Warna avatar '+(i+1);b.setAttribute('aria-label','Pilih warna avatar '+(i+1));b.onclick=()=>pickColor(i);row.appendChild(b);});
   syncPicker();
 }
 
-/* Pesan */
 function cleanMsg(d,key){
-  if(!d||typeof d!=='object')return null; const t=+d.time; if(!t)return null;
-  const user=String(d.user||'?');
-  return {id:String(d.id||key),uid:String(d.uid||''),user,text:String(d.text||''),time:t,type:d.type==='system'?'system':'message',editedAt:+d.editedAt||0,deleted:!!d.deleted,avatar:String(d.avatar||''),avatarColor:d.avatarColor!=null?+d.avatarColor:hash(user)%COLORS.length};
+  if(!d||typeof d!=='object')return null;const t=+d.time;if(!t)return null;const user=String(d.user||'?');
+  return{id:String(d.id||key),uid:String(d.uid||''),user,text:String(d.text||''),time:t,type:d.type==='system'?'system':'message',editedAt:+d.editedAt||0,deleted:!!d.deleted,avatar:String(d.avatar||''),avatarColor:d.avatarColor!=null?+d.avatarColor:hash(user)%COLORS.length};
 }
 function applyMessage(raw,key){
-  const m=cleanMsg(raw,key); if(!m||!m.id)return;
-  const prev=S.msgs.get(m.id);
-  if(prev){
-    if(m.editedAt&&prev.editedAt&&m.editedAt<prev.editedAt){m.text=prev.text;m.deleted=prev.deleted;m.editedAt=prev.editedAt;}
-    const merged={...prev,...m}; S.msgs.set(m.id,merged); updateMsgDOM(merged); updateStats(); scheduleSearch(); return;
-  }
-  S.msgs.set(m.id,m);
-  const lastId=S.order[S.order.length-1], last=lastId?S.msgs.get(lastId):null;
-  S.order.push(m.id);
-  if(!last||m.time>=last.time-500)renderAppend(m,true);
-  else{S.order.sort((a,b)=>S.msgs.get(a).time-S.msgs.get(b).time);scheduleRebuild();}
+  const m=cleanMsg(raw,key);if(!m||!m.id)return;const prev=S.msgs.get(m.id);
+  if(prev){if(m.editedAt&&prev.editedAt&&m.editedAt<prev.editedAt){m.text=prev.text;m.deleted=prev.deleted;m.editedAt=prev.editedAt;}const merged={...prev,...m};S.msgs.set(m.id,merged);updateMsgDOM(merged);updateStats();scheduleSearch();return;}
+  S.msgs.set(m.id,m);const lastId=S.order[S.order.length-1],last=lastId?S.msgs.get(lastId):null;S.order.push(m.id);
+  if(!last||m.time>=last.time-500)renderAppend(m,true);else{S.order.sort((a,b)=>S.msgs.get(a).time-S.msgs.get(b).time);scheduleRebuild();}
   const fresh=now()-m.time<7000&&now()>S.initialUntil;
-  if(fresh&&m.uid!==uid){ if(m.type==='message'){Sound.play('recv');if(!nearBottom()){S.unread++;updateNewPill();}} else if(/bergabung/.test(m.text))Sound.play('join'); }
-  updateStats(); scheduleSearch();
+  if(fresh&&m.uid!==uid){if(m.type==='message'){Sound.play('recv');if(!nearBottom()){S.unread++;updateNewPill();}}else if(/bergabung/.test(m.text))Sound.play('join');}
+  updateStats();scheduleSearch();
 }
-function isGrouped(prev,m){ return prev&&prev.type==='message'&&m.type==='message'&&prev.uid===m.uid&&m.time-prev.time<120000&&dayKey(prev.time)===dayKey(m.time); }
+function isGrouped(prev,m){return prev&&prev.type==='message'&&m.type==='message'&&prev.uid===m.uid&&m.time-prev.time<120000&&dayKey(prev.time)===dayKey(m.time);}
 function buildMsg(m,grouped){
-  const el=document.createElement('div'); el.dataset.id=m.id;
-  if(m.type==='system'){ el.className='msg system'; el.innerHTML=`<div class="sys-pill" style="width:100%"><span>${esc(m.text)}</span></div>`; el.title=fmtTime(m.time); return el; }
-  const own=m.uid===uid, c=colorOf(m.user);
+  const el=document.createElement('div');el.dataset.id=m.id;
+  if(m.type==='system'){el.className='msg system';el.innerHTML=`<div class="sys-pill" style="width:100%"><span>${esc(m.text)}</span></div>`;el.title=fmtTime(m.time);return el;}
+  const own=m.uid===uid,c=colorOf(m.user);
   el.className='msg '+(own?'own':'other')+(grouped?' grouped':'');
   const av=own?'':avatarMarkup(m.user,m.avatar,m.avatarColor,'m-av');
   const nameRow=(!own&&!grouped)?`<div class="m-name" style="color:${c}">${esc(m.user)}</div>`:'';
   el.innerHTML=`${av}<div class="m-body">${nameRow}<div class="m-bubble"></div><div class="m-meta"><span>${fmtTime(m.time)}</span><span class="edited hidden">(diedit)</span></div><div class="m-react"></div><div class="m-tools"></div></div>`;
-  fillBubble(el,m); fillTools(el,m); renderReactions(m.id,el);
+  fillBubble(el,m);fillTools(el,m);renderReactions(m.id,el);
   const bubble=el.querySelector('.m-bubble');
   bubble.addEventListener('dblclick',e=>{e.preventDefault();if(!S.msgs.get(m.id)?.deleted)toggleReaction(m.id,'❤️');});
-  bubble.addEventListener('click',e=>{ if(!isTouch()||e.target.closest('a'))return; const open=el.classList.contains('tools-open'); $$('.msg.tools-open').forEach(x=>x.classList.remove('tools-open')); if(!open&&!S.msgs.get(m.id)?.deleted)el.classList.add('tools-open'); });
+  bubble.addEventListener('click',e=>{if(!isTouch()||e.target.closest('a'))return;const open=el.classList.contains('tools-open');$$('.msg.tools-open').forEach(x=>x.classList.remove('tools-open'));if(!open&&!S.msgs.get(m.id)?.deleted)el.classList.add('tools-open');});
   return el;
 }
-function fillBubble(el,m){
-  const b=el.querySelector('.m-bubble'); if(!b)return;
-  b.classList.toggle('deleted',!!m.deleted);
-  if(m.deleted)b.textContent='🚫 Pesan dihapus'; else b.replaceChildren(linkify(m.text));
-  el.querySelector('.edited')?.classList.toggle('hidden',!m.editedAt||m.deleted);
-}
+function fillBubble(el,m){const b=el.querySelector('.m-bubble');if(!b)return;b.classList.toggle('deleted',!!m.deleted);if(m.deleted)b.textContent='🚫 Pesan dihapus';else b.replaceChildren(linkify(m.text));el.querySelector('.edited')?.classList.toggle('hidden',!m.editedAt||m.deleted);}
 function fillTools(el,m){
-  const tools=el.querySelector('.m-tools'); if(!tools)return;
-  if(m.deleted){tools.remove();return;}
-  tools.innerHTML='';
+  const tools=el.querySelector('.m-tools');if(!tools)return;if(m.deleted){tools.remove();return;}tools.innerHTML='';
   QUICK.forEach(em=>{const b=document.createElement('button');b.textContent=em;b.title='Reaksi '+em;b.onclick=()=>{toggleReaction(m.id,em);el.classList.remove('tools-open');};tools.appendChild(b);});
-  if(m.uid===uid){
-    const be=document.createElement('button');be.innerHTML=icon('edit',14);be.title='Edit';be.onclick=()=>{enterEdit(m.id);el.classList.remove('tools-open');};tools.appendChild(be);
-    const bd=document.createElement('button');bd.className='del';bd.innerHTML=icon('trash',14);bd.title='Hapus';bd.onclick=()=>{deleteMsg(m.id);el.classList.remove('tools-open');};tools.appendChild(bd);
-  }
+  if(m.uid===uid){const be=document.createElement('button');be.innerHTML=icon('edit',14);be.title='Edit';be.onclick=()=>{enterEdit(m.id);el.classList.remove('tools-open');};tools.appendChild(be);const bd=document.createElement('button');bd.className='del';bd.innerHTML=icon('trash',14);bd.title='Hapus';bd.onclick=()=>{deleteMsg(m.id);el.classList.remove('tools-open');};tools.appendChild(bd);}
 }
-function updateMsgDOM(m){
-  const el=$('#msgList').querySelector(`[data-id="${CSS.escape(m.id)}"]`); if(!el)return;
-  fillBubble(el,m);
-  if(m.deleted)el.querySelector('.m-tools')?.remove();
-  else if(!el.querySelector('.m-tools')){const t=document.createElement('div');t.className='m-tools';el.querySelector('.m-body').appendChild(t);fillTools(el,m);}
-  renderReactions(m.id,el);
-}
+function updateMsgDOM(m){const el=$('#msgList').querySelector(`[data-id="${CSS.escape(m.id)}"]`);if(!el)return;fillBubble(el,m);if(m.deleted)el.querySelector('.m-tools')?.remove();else if(!el.querySelector('.m-tools')){const t=document.createElement('div');t.className='m-tools';el.querySelector('.m-body').appendChild(t);fillTools(el,m);}renderReactions(m.id,el);}
 function renderAppend(m,anim){
-  const list=$('#msgList'), idx=S.order.indexOf(m.id), prev=idx>0?S.msgs.get(S.order[idx-1]):null;
+  const list=$('#msgList'),idx=S.order.indexOf(m.id),prev=idx>0?S.msgs.get(S.order[idx-1]):null;
   if(m.type!=='system'&&(!prev||dayKey(prev.time)!==dayKey(m.time))){const d=document.createElement('div');d.className='day-div';d.innerHTML=`<span>${dayLabel(m.time)}</span>`;list.appendChild(d);}
-  const el=buildMsg(m,isGrouped(prev,m));
-  if(anim){el.classList.add('enter');if(now()<S.initialUntil)el.style.animationDelay=Math.min(idx,10)*.03+'s';}
-  list.appendChild(el);
-  if(m.uid===uid||nearBottom())scrollBottom(anim&&now()>S.initialUntil);
+  const el=buildMsg(m,isGrouped(prev,m));if(anim){el.classList.add('enter');if(now()<S.initialUntil)el.style.animationDelay=Math.min(idx,10)*.03+'s';}
+  list.appendChild(el);if(m.uid===uid||nearBottom())scrollBottom(anim&&now()>S.initialUntil);
 }
 function scheduleRebuild(){clearTimeout(T.rebuild);T.rebuild=setTimeout(rebuild,80);}
 function rebuild(){
-  const s=scroller(),stick=nearBottom(),top=s.scrollTop,list=$('#msgList'); list.innerHTML=''; addWelcome();
-  let prev=null;
-  S.order.forEach(id=>{const m=S.msgs.get(id); if(m.type!=='system'&&(!prev||dayKey(prev.time)!==dayKey(m.time))){const d=document.createElement('div');d.className='day-div';d.innerHTML=`<span>${dayLabel(m.time)}</span>`;list.appendChild(d);} list.appendChild(buildMsg(m,isGrouped(prev,m))); prev=m;});
-  if(stick)scrollBottom(false);else s.scrollTop=top;
-  updateStats(); if(searchState.q)runSearch(false);
+  const s=scroller(),stick=nearBottom(),top=s.scrollTop,list=$('#msgList');list.innerHTML='';addWelcome();let prev=null;
+  S.order.forEach(id=>{const m=S.msgs.get(id);if(m.type!=='system'&&(!prev||dayKey(prev.time)!==dayKey(m.time))){const d=document.createElement('div');d.className='day-div';d.innerHTML=`<span>${dayLabel(m.time)}</span>`;list.appendChild(d);}list.appendChild(buildMsg(m,isGrouped(prev,m)));prev=m;});
+  if(stick)scrollBottom(false);else s.scrollTop=top;updateStats();if(searchState.q)runSearch(false);
 }
-function addWelcome(){ const w=document.createElement('div');w.className='welcome';w.innerHTML=`<span>Room <b>${esc(S.room)}</b> siap 🎉 Bagikan kode atau link lewat tombol <b>Undang</b> agar teman bisa bergabung.</span>`; $('#msgList').appendChild(w); }
-function updateStats(){ $('#statMsgs').textContent=S.order.filter(id=>{const m=S.msgs.get(id);return m.type==='message'&&!m.deleted;}).length; }
-function updateNewPill(){ $('#newPill').classList.toggle('hidden',S.unread===0); $('#newCount').textContent=S.unread; }
+function addWelcome(){const w=document.createElement('div');w.className='welcome';w.innerHTML=`<span>Room <b>${esc(S.room)}</b> siap. Bagikan kode atau link lewat tombol <b>Undang</b> agar teman bisa bergabung.</span>`;$('#msgList').appendChild(w);}
+function updateStats(){$('#statMsgs').textContent=S.order.filter(id=>{const m=S.msgs.get(id);return m.type==='message'&&!m.deleted;}).length;}
+function updateNewPill(){$('#newPill').classList.toggle('hidden',S.unread===0);$('#newCount').textContent=S.unread;}
 function stripMsg(m){return{id:m.id,uid:m.uid,user:m.user,text:m.text,time:m.time,type:m.type,editedAt:m.editedAt||0,deleted:!!m.deleted,avatar:m.avatar||'',avatarColor:m.avatarColor??hash(m.user)%COLORS.length};}
-function writeMsg(m){ applyMessage(m); const data=stripMsg(m); if(gun&&nodes)nodes.messages.get(m.id).put(data); bc?.postMessage({room:S.room,kind:'msg',data}); }
-function sendSystem(text){ writeMsg({id:'sys-'+Date.now().toString(36)+'-'+rand(4),uid:'system',user:'System',text,time:now(),type:'system',editedAt:0,deleted:false,avatar:'',avatarColor:0}); }
+function writeMsg(m){applyMessage(m);const data=stripMsg(m);if(gun&&nodes)nodes.messages.get(m.id).put(data);bc?.postMessage({room:S.room,kind:'msg',data});}
+function sendSystem(text){writeMsg({id:'sys-'+Date.now().toString(36)+'-'+rand(4),uid:'system',user:'System',text,time:now(),type:'system',editedAt:0,deleted:false,avatar:'',avatarColor:0});}
 function sendMessage(){
-  const ta=$('#input'),text=ta.value.trim().slice(0,2000); if(!text)return;
+  const ta=$('#input'),text=ta.value.trim().slice(0,2000);if(!text)return;
   if(S.editId){const m=S.msgs.get(S.editId);if(m)writeMsg({...m,text,editedAt:now()});exitEdit();toast('Pesan diperbarui','✏️');}
   else{writeMsg({id:uid+'-'+Date.now().toString(36)+'-'+rand(4),uid,user:S.name,text,time:now(),type:'message',editedAt:0,deleted:false,avatar:S.avatar,avatarColor:S.avatarColor});Sound.play('send');}
   ta.value='';autoGrow();updateSendBtn();typingClear();ta.focus();
@@ -776,21 +692,17 @@ function enterEdit(id){const m=S.msgs.get(id);if(!m||m.uid!==uid||m.deleted)retu
 function exitEdit(){S.editId=null;$('#editBar').classList.add('hidden');const ta=$('#input');ta.value='';autoGrow();updateSendBtn();}
 function deleteMsg(id){const m=S.msgs.get(id);if(!m||m.uid!==uid)return;writeMsg({...m,deleted:true,editedAt:now()});toast('Pesan dihapus','🗑',{label:'Urungkan',fn:()=>{const cur=S.msgs.get(id);if(cur)writeMsg({...cur,deleted:false,editedAt:now()});}});}
 
-/* Reaksi */
 function patchRaw(mid,key,val){if(val){(S.reactRaw[mid]=S.reactRaw[mid]||{})[key]=1;}else if(S.reactRaw[mid])delete S.reactRaw[mid][key];}
 function toggleReaction(mid,emoji){const key=emoji+'|'+uid,cur=S.reactRaw[mid]?.[key],val=cur?null:1;patchRaw(mid,key,val);renderReactions(mid);Sound.play('react');if(gun&&nodes)nodes.reactions.get(mid).get(key).put(val);bc?.postMessage({room:S.room,kind:'react',mid,key,val});}
 function renderReactions(mid,el){
-  el=el||$('#msgList').querySelector(`[data-id="${CSS.escape(mid)}"]`);if(!el)return;
-  const row=el.querySelector('.m-react');if(!row)return;const m=S.msgs.get(mid);row.innerHTML='';if(m?.deleted)return;
-  const counts={};for(const k in(S.reactRaw[mid]||{})){const [em,u]=k.split('|');(counts[em]=counts[em]||new Set()).add(u);}
+  el=el||$('#msgList').querySelector(`[data-id="${CSS.escape(mid)}"]`);if(!el)return;const row=el.querySelector('.m-react');if(!row)return;const m=S.msgs.get(mid);row.innerHTML='';if(m?.deleted)return;
+  const counts={};for(const k in(S.reactRaw[mid]||{})){const[em,u]=k.split('|');(counts[em]=counts[em]||new Set()).add(u);}
   Object.entries(counts).forEach(([em,set])=>{const b=document.createElement('button');b.className='r-pill'+(set.has(uid)?' mine':'');b.innerHTML=`${em}<b>${set.size}</b>`;b.title='Klik untuk memberi / membatalkan reaksi';b.onclick=()=>toggleReaction(mid,em);row.appendChild(b);});
 }
 
-/* Presence */
 function writePresence(extra={}){
-  if(!S.joined)return;
-  const p={user:S.name,avatar:S.avatar,avatarColor:S.avatarColor,seen:now(),typing:S.typingSent,...extra};
-  S.presence.set(uid,p); if(gun&&nodes)nodes.presence.get(uid).put(p); bc?.postMessage({room:S.room,kind:'presence',uid,data:p}); renderPeople();renderTyping();
+  if(!S.joined)return;const p={user:S.name,avatar:S.avatar,avatarColor:S.avatarColor,seen:now(),typing:S.typingSent,...extra};
+  S.presence.set(uid,p);if(gun&&nodes)nodes.presence.get(uid).put(p);bc?.postMessage({room:S.room,kind:'presence',uid,data:p});renderPeople();renderTyping();
 }
 function applyPresence(u,p){if(!p||typeof p!=='object')return;S.presence.set(u,{user:String(p.user||'?'),avatar:String(p.avatar||''),avatarColor:+p.avatarColor||0,seen:+p.seen||0,typing:!!p.typing});renderPeople();renderTyping();}
 function onlineList(){
@@ -799,21 +711,18 @@ function onlineList(){
   arr.sort((a,b)=>a.u===uid?-1:b.u===uid?1:a.user.localeCompare(b.user));return arr;
 }
 function renderPeople(){
-  const list=onlineList(),n=list.length;$('#onlineCount').textContent=n+' online';$('#memberBadge').textContent=n;$('#sbCount').textContent=n;
-  const ul=$('#peopleList');ul.innerHTML='';
+  const list=onlineList(),n=list.length;$('#onlineCount').textContent=n+' online';$('#memberBadge').textContent=n;$('#sbCount').textContent=n;const ul=$('#peopleList');ul.innerHTML='';
   list.forEach(p=>{const li=document.createElement('li'),typing=p.typing&&p.u!==uid&&now()-p.seen<6500;li.innerHTML=`${avatarMarkup(p.user,p.avatar,p.avatarColor,'p-av')}<div class="p-info"><div class="p-name">${esc(p.user)}${p.u===uid?'<span class="you-tag">kamu</span>':''}</div>${typing?'<div class="p-sub">sedang mengetik…</div>':''}</div><span class="p-dot"></span>`;ul.appendChild(li);});
 }
 function renderTyping(){
-  const t=now(),people=[...S.presence.entries()].filter(([u,p])=>u!==uid&&p.typing&&t-p.seen<6500).map(([,p])=>p);
-  const row=$('#typingRow');if(!people.length){row.classList.remove('on');$('#typingAvatars').innerHTML='';return;}
+  const t=now(),people=[...S.presence.entries()].filter(([u,p])=>u!==uid&&p.typing&&t-p.seen<6500).map(([,p])=>p);const row=$('#typingRow');
+  if(!people.length){row.classList.remove('on');$('#typingAvatars').innerHTML='';return;}
   $('#typingAvatars').innerHTML=people.slice(0,3).map(p=>avatarMarkup(p.user,p.avatar,p.avatarColor,'tp-av')).join('');
-  $('#typingText').textContent=people.length===1?people[0].user+' sedang mengetik…':people.length===2?people.map(p=>p.user).join(' & ')+' sedang mengetik…':'Beberapa orang sedang mengetik…';
-  row.classList.add('on');
+  $('#typingText').textContent=people.length===1?people[0].user+' sedang mengetik…':people.length===2?people.map(p=>p.user).join(' & ')+' sedang mengetik…':'Beberapa orang sedang mengetik…';row.classList.add('on');
 }
 function typingPing(){if(!S.joined)return;if(!S.typingSent){S.typingSent=true;writePresence();}clearTimeout(T.typing);T.typing=setTimeout(()=>{S.typingSent=false;writePresence();},2600);}
 function typingClear(){clearTimeout(T.typing);if(S.typingSent){S.typingSent=false;writePresence();}}
 
-/* Pencarian */
 function scheduleSearch(){if(!searchState.q)return;clearTimeout(T.search);T.search=setTimeout(()=>runSearch(false),140);}
 function runSearch(autoFocus=true){
   const q=$('#searchInput').value.trim().toLowerCase();searchState.q=q;searchState.hits=[];searchState.idx=-1;
@@ -824,17 +733,13 @@ function runSearch(autoFocus=true){
 function focusHit(){searchState.hits.forEach((el,i)=>el.classList.toggle('search-active',i===searchState.idx));const el=searchState.hits[searchState.idx];el?.scrollIntoView({behavior:'smooth',block:'center'});$('#searchCount').textContent=(searchState.idx+1)+'/'+searchState.hits.length;}
 function stepHit(d){if(!searchState.hits.length)return;searchState.idx=(searchState.idx+d+searchState.hits.length)%searchState.hits.length;focusHit();}
 function toggleSearch(){const bar=$('#searchBar'),open=bar.classList.contains('hidden');bar.classList.toggle('hidden',!open);if(open)$('#searchInput').focus();else{$('#searchInput').value='';runSearch(false);}}
-
-/* Jaringan */
 function renderNet(){
-  const mode=!gun?'local':(!navigator.onLine?'off':(relayCount>0?'ok':'wait'));
-  const label={ok:'Live',off:'Offline',local:'Lokal',wait:'Relay…'}[mode];
+  const mode=!gun?'local':(!navigator.onLine?'off':(relayCount>0?'ok':'wait'));const label={ok:'Live',off:'Offline',local:'Lokal',wait:'Relay…'}[mode];
   const title={ok:'Tersambung ke relay P2P',off:'Tidak ada koneksi internet',local:'Mode lokal antar-tab browser',wait:'Menunggu relay publik tersambung'}[mode];
   [$('#netChip'),$('#netChipLobby')].forEach(ch=>{ch.className='net-chip '+mode+(ch.id==='netChip'?' small':'');ch.innerHTML='<i></i>'+label;ch.title=title;});
   $('#offlineBar').classList.toggle('hidden',mode!=='off');
 }
 
-/* Join / leave */
 function joinChat(code){
   const name=$('#nameInput').value.trim();
   if(name.length<2){$('#nameFld').classList.add('invalid');$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);$('#nameInput').focus();return;}
@@ -854,8 +759,7 @@ function joinChat(code){
     reactOuter=nodes.reactions.map();reactOuter.on((d,mid)=>{
       if(tok!==S.token||!mid||mid==='_'||reactMids.has(mid))return;
       reactMids.add(mid);const chain=nodes.reactions.get(mid).map();
-      chain.on((val,key)=>{if(tok!==S.token||key==='_')return;patchRaw(mid,key,val);renderReactions(mid);});
-      reactInner.push(chain);
+      chain.on((val,key)=>{if(tok!==S.token||key==='_')return;patchRaw(mid,key,val);renderReactions(mid);});reactInner.push(chain);
     });
     setTimeout(()=>{if(tok===S.token&&relayCount===0&&navigator.onLine)toast('Relay publik belum tersambung. Chat antar-tab tetap aktif; untuk lintas perangkat stabil, gunakan relay Gun sendiri.','📡');},9000);
   }else{nodes=null;toast('Mesin relay tidak termuat — mode lokal antar-tab browser.','📴');}
@@ -877,11 +781,10 @@ function doLeave(){
   $('#searchInput').value='';searchState.q='';searchState.hits=[];$('#searchBar').classList.add('hidden');
   closeModal('leaveModal');closeModal('shareModal');closeSidebar();closeEmoji();
   $('#msgList').innerHTML='';updateNewPill();$('#chat').classList.add('hidden');$('#lobby').classList.remove('hidden');document.body.classList.remove('chat-mode');
-  document.title='QuickChat — Pilih Avatar & Mulai Ngobrol';history.replaceState(null,'',location.pathname);$('#inviteBanner').classList.add('hidden');
+  document.title='QuickChat — by Ryo XD';history.replaceState(null,'',location.pathname);$('#inviteBanner').classList.add('hidden');
   renderNet();updateProfilePreview();$('#nameInput').focus();toast('Kamu keluar dari room','👋');
 }
 
-/* Lobby */
 function setTab(which){const join=which==='join';$('#tabs').classList.toggle('join',join);$('#tabCreate').classList.toggle('on',!join);$('#tabJoin').classList.toggle('on',join);$('#tabCreate').setAttribute('aria-selected',!join);$('#tabJoin').setAttribute('aria-selected',join);$('#paneCreate').classList.toggle('hidden',join);$('#paneJoin').classList.toggle('hidden',!join);}
 function generateCode(){S.pendingCode=newRoomCode();$('#genCode').textContent=S.pendingCode;const link=shareLink(S.pendingCode);$('#genLink').value=link;renderQR($('#genQR'),link,128);$('#roomBox').classList.remove('hidden');$('#btnEnter').classList.remove('hidden');$('#btnGenerate').classList.add('hidden');Sound.play('react');}
 function autoGrow(){const ta=$('#input');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';}
@@ -893,7 +796,6 @@ function closeModal(id){$('#'+id).classList.add('hidden');}
 function openShare(){const link=shareLink(S.room);$('#smCode').textContent=S.room;$('#smLink').value=link;renderQR($('#smQR'),link,176);$('#btnSmShare').classList.toggle('hidden',!navigator.share);$('#smNote').textContent=location.protocol==='file:'?'Kamu membuka via file:// — deploy ke GitHub Pages agar link bisa dibuka perangkat lain.':'Pastikan kedua perangkat membuka link yang sama.';openModal('shareModal');}
 function closeSidebar(){$('#sidebar').classList.remove('open');$('#sbScrim').classList.add('hidden');}
 
-/* Init */
 function init(){
   $('#tabCreate').innerHTML=icon('zap',15)+' Buat Room';$('#tabJoin').innerHTML=icon('users',15)+' Gabung Room';
   $('#btnGenerate').innerHTML=icon('dice')+' Buat Kode Room';$('#btnRegen').innerHTML=icon('dice',14)+' Acak';$('#btnCopyCode').innerHTML=icon('copy');$('#btnCopyLink').innerHTML=icon('link',14)+' Salin';$('#btnEnter').innerHTML='Masuk ke Room '+icon('zap');$('#btnJoin').innerHTML='Gabung ke Room '+icon('users');
@@ -910,7 +812,11 @@ function init(){
   S.avatarColor=savedColor!=null?+savedColor:Math.floor(Math.random()*COLORS.length);if(Number.isNaN(S.avatarColor))S.avatarColor=0;S.avatarColor=((S.avatarColor%COLORS.length)+COLORS.length)%COLORS.length;
   buildAvatarPicker();
   if(location.protocol==='file:')$('#jcFoot').textContent='💡 Deploy ke GitHub Pages agar link undangan bisa dibuka di perangkat lain.';
-  const invited=normCode(new URLSearchParams(location.search).get('room')||'');if(invited.length>=3){setTab('join');$('#codeInput').value=invited;$('#inviteCode').textContent=invited;$('#inviteBanner').classList.remove('hidden');}
+  const invited=normCode(new URLSearchParams(location.search).get('room')||'');
+  if(invited.length>=3){
+    setTab('join');$('#codeInput').value=invited;$('#inviteCode').textContent=invited;$('#inviteBanner').classList.remove('hidden');
+    if(savedName.trim().length>=2&&S.avatar)setTimeout(()=>{if(!S.joined)joinChat(invited);},700);
+  }
   $$('.sound-btn').forEach(b=>b.onclick=()=>Sound.toggle());
   $('#nameInput').addEventListener('input',()=>{$('#nameFld').classList.remove('invalid');updateProfilePreview();});
   $('#nameInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if($('#paneJoin').classList.contains('hidden')){S.pendingCode?joinChat(S.pendingCode):generateCode();}else $('#codeInput').focus();}});
