@@ -78,7 +78,7 @@ button{color:inherit}
 .net-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;background:var(--glass);padding:5px 10px;color:var(--muted);font:700 10.5px var(--mono);letter-spacing:.04em}
 .net-chip i{width:7px;height:7px;border-radius:50%;flex:none}
 .net-chip.ok{color:var(--lime)}.net-chip.ok i{background:var(--lime);box-shadow:0 0 9px var(--lime);animation:pulse 2s infinite}
-.net-chip.off,.net-chip.wait{color:var(--amber)}.net-chip.off i,.net-chip.wait i{background:var(--amber);box-shadow:0 0 9px var(--amber)}
+.net-chip.off{color:var(--amber)}.net-chip.off i{background:var(--amber);box-shadow:0 0 9px var(--amber)}
 .net-chip.local{color:var(--cyan)}.net-chip.local i{background:var(--cyan);box-shadow:0 0 9px var(--cyan)}
 .net-chip.small{padding:2px 8px;font-size:9.5px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
@@ -87,6 +87,8 @@ button{color:inherit}
 .lobby-top{display:flex;align-items:center;justify-content:space-between;padding:20px clamp(18px,4vw,36px)}
 .brand{display:flex;align-items:center;gap:11px}
 .brand svg{width:36px;height:36px;filter:drop-shadow(0 4px 14px rgba(200,240,75,.35))}
+.brand-text{display:flex;flex-direction:column;line-height:1.1}
+.brand-dev{margin-top:3px;color:var(--muted);font:600 10px var(--mono);letter-spacing:.06em}
 .wordmark{font:800 19px var(--disp)}
 .wordmark b{background:linear-gradient(90deg,var(--lime),var(--cyan));background-clip:text;-webkit-background-clip:text;color:transparent}
 .top-actions{display:flex;align-items:center;gap:10px}
@@ -160,7 +162,7 @@ button{color:inherit}
 .rb-qr img,.sb-qr img,.sm-qr img{display:block;border-radius:11px;background:#fff;padding:7px;image-rendering:pixelated}
 .rb-qr span{color:var(--muted);font-size:12px;line-height:1.5}
 .jc-foot{margin-top:16px;color:rgba(148,161,185,.72);font-size:11.5px;text-align:center}
-.dev-credit{margin-top:6px}
+.dev-credit{margin-top:6px;color:var(--muted)}
 .reveal{opacity:0;transform:translateY(18px);animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards}
 .d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.26s}.d4{animation-delay:.36s}
 @keyframes rise{to{opacity:1;transform:none}}
@@ -337,10 +339,13 @@ button{color:inherit}
   <header class="lobby-top">
     <div class="brand">
       <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8F04B"/><stop offset="1" stop-color="#53D8FF"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="13" fill="url(#lg)"/><path d="M14 11h20a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7h-9l-8 7v-7h-3a7 7 0 0 1-7-7v-9a7 7 0 0 1 7-7z" fill="#06090F"/><path d="M27 15l-8 11h5l-2 8 8-11h-5l2-8z" fill="#C8F04B"/></svg>
-      <span class="wordmark">Quick<b>Chat</b></span>
+      <div class="brand-text">
+        <span class="wordmark">Quick<b>Chat</b></span>
+        <span class="brand-dev">Developer: Ryo XD</span>
+      </div>
     </div>
     <div class="top-actions">
-      <span id="netChipLobby" class="net-chip wait"><i></i>Relay…</span>
+      <span id="netChipLobby" class="net-chip ok"><i></i>Online</span>
       <button class="icon-btn sound-btn" aria-label="Suara"></button>
     </div>
   </header>
@@ -425,7 +430,7 @@ button{color:inherit}
     <div class="room-meta">
       <div class="room-title" id="roomTitle">ROOM</div>
       <div class="room-sub">
-        <span id="netChip" class="net-chip wait small"><i></i>Relay…</span>
+        <span id="netChip" class="net-chip ok small"><i></i>Online</span>
         <span id="onlineCount">1 online</span>
         <span class="me-chip"><span id="meAv"></span><span id="asName">kamu: —</span></span>
       </div>
@@ -570,7 +575,7 @@ const Sound={
     else if(kind==='join'){blip(520,520,.09,.04,'triangle');blip(780,780,.12,.04,'triangle',.09);}
     else if(kind==='react')blip(950,1150,.06,.035,'triangle');
   },
-  toggle(){this.on=!this.on;localStorage.setItem('qc-sound',this.on?'1':'0');updateSoundButtons();if(this.on)this.play('react');toast(this.on?'Suara aktif':'Suara dimatikan',this.on?'🔊':'');}
+  toggle(){this.on=!this.on;localStorage.setItem('qc-sound',this.on?'1':'0');updateSoundButtons();if(this.on)this.play('react');toast(this.on?'Suara aktif':'Suara dimatikan',this.on?'🔊':'🔇');}
 };
 function updateSoundButtons(){ $$('.sound-btn').forEach(b=>{b.innerHTML=icon(Sound.on?'vol':'volx');b.setAttribute('aria-pressed',Sound.on);b.title=Sound.on?'Matikan suara':'Aktifkan suara';}); }
 function toast(msg,emoji='✨',action){
@@ -582,16 +587,15 @@ function toast(msg,emoji='✨',action){
 }
 
 const PEERS=['https://relay.peer.ooo/gun','https://gun-relay.glitch.me/gun','https://gun-manhattan.herokuapp.com/gun'];
-let gun=null,relayCount=0;
+let gun=null;
 try{if(typeof Gun!=='undefined')gun=Gun({peers:PEERS,localStorage:true,radisk:false});}catch(e){}
-if(gun){const live=new Set();gun.on('hi',p=>{live.add(p?.id||p?.url||'peer');relayCount=live.size;renderNet();});gun.on('bye',p=>{live.delete(p?.id||p?.url||'peer');relayCount=live.size;renderNet();});}
 let bc=null;try{bc=new BroadcastChannel('quickchat-v2');}catch(e){}
 
 const S={room:null,name:'',token:0,joined:false,msgs:new Map(),order:[],presence:new Map(),reactRaw:{},unread:0,initialUntil:0,editId:null,typingSent:false,pendingCode:null,avatar:AVATARS[0].e,avatarColor:0};
 let nodes=null,msgChain=null,presChain=null,reactOuter=null,reactInner=[],reactMids=new Set();
 const T={hb:null,prune:null,typing:null,rebuild:null,search:null};
 const EMOJIS=['😀','😁','😂','🤣','😊','😍','😘','😜','😎','🥳','','🤔','','😅','😴','🤫','😱','😡','👍','👎','👏','🙏','💪','✌️','👀','','❤️','','💛','💚','💙','💜','🖤','💔','✨','🔥','','🎉','','','','☕','','⭐','','🫡'];
-const QUICK=['❤️','😂','🔥',''];
+const QUICK=['❤️','😂','🔥','👍'];
 const URLRE=/(https?:\/\/[^\s<]+[^\s<.,:;"')\]])/g;
 const searchState={q:'',hits:[],idx:-1};
 const scroller=()=>$('#msgScroll');
@@ -734,8 +738,9 @@ function focusHit(){searchState.hits.forEach((el,i)=>el.classList.toggle('search
 function stepHit(d){if(!searchState.hits.length)return;searchState.idx=(searchState.idx+d+searchState.hits.length)%searchState.hits.length;focusHit();}
 function toggleSearch(){const bar=$('#searchBar'),open=bar.classList.contains('hidden');bar.classList.toggle('hidden',!open);if(open)$('#searchInput').focus();else{$('#searchInput').value='';runSearch(false);}}
 function renderNet(){
-  const mode=!gun?'local':(!navigator.onLine?'off':(relayCount>0?'ok':'wait'));const label={ok:'Live',off:'Offline',local:'Lokal',wait:'Relay…'}[mode];
-  const title={ok:'Tersambung ke relay P2P',off:'Tidak ada koneksi internet',local:'Mode lokal antar-tab browser',wait:'Menunggu relay publik tersambung'}[mode];
+  const mode=!gun?'local':(navigator.onLine?'ok':'off');
+  const label={ok:'Online',off:'Offline',local:'Lokal'}[mode];
+  const title={ok:'Terhubung ke internet',off:'Tidak ada koneksi internet',local:'Mode lokal antar-tab browser'}[mode];
   [$('#netChip'),$('#netChipLobby')].forEach(ch=>{ch.className='net-chip '+mode+(ch.id==='netChip'?' small':'');ch.innerHTML='<i></i>'+label;ch.title=title;});
   $('#offlineBar').classList.toggle('hidden',mode!=='off');
 }
@@ -761,7 +766,6 @@ function joinChat(code){
       reactMids.add(mid);const chain=nodes.reactions.get(mid).map();
       chain.on((val,key)=>{if(tok!==S.token||key==='_')return;patchRaw(mid,key,val);renderReactions(mid);});reactInner.push(chain);
     });
-    setTimeout(()=>{if(tok===S.token&&relayCount===0&&navigator.onLine)toast('Relay publik belum tersambung. Chat antar-tab tetap aktif; untuk lintas perangkat stabil, gunakan relay Gun sendiri.','📡');},9000);
   }else{nodes=null;toast('Mesin relay tidak termuat — mode lokal antar-tab browser.','📴');}
   clearInterval(T.hb);clearInterval(T.prune);T.hb=setInterval(()=>writePresence(),12000);T.prune=setInterval(()=>{renderPeople();renderTyping();},5000);
   $('#lobby').classList.add('hidden');$('#chat').classList.remove('hidden');document.body.classList.add('chat-mode');
