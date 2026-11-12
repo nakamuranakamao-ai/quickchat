@@ -32,7 +32,6 @@ button{color:inherit}
 ::-webkit-scrollbar-track{background:rgba(8,12,22,.5)}
 ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--lime),var(--cyan));border-radius:99px;border:3px solid rgba(8,12,22,.5);background-clip:padding-box}
 ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#e2ff72,var(--cyan));border:3px solid rgba(8,12,22,.5);background-clip:padding-box}
-
 .bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
 .blob{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform}
 .b1{width:54vmax;height:54vmax;left:-16vmax;top:-20vmax;background:radial-gradient(circle,rgba(200,240,75,.17),transparent 66%);animation:drift1 26s ease-in-out infinite alternate}
@@ -46,7 +45,6 @@ button{color:inherit}
 @keyframes floaty{to{transform:translateY(-28px)}}
 @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.85}}
 .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
-
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:13px;padding:13px 18px;font-weight:700;font-size:15px;cursor:pointer;transition:.18s}
 .btn:active{transform:scale(.97)}
 .btn.primary{background:linear-gradient(135deg,var(--lime),var(--teal));color:#081018;box-shadow:0 9px 28px rgba(200,240,75,.23)}
@@ -78,11 +76,10 @@ button{color:inherit}
 .net-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;background:var(--glass);padding:5px 10px;color:var(--muted);font:700 10.5px var(--mono);letter-spacing:.04em}
 .net-chip i{width:7px;height:7px;border-radius:50%;flex:none}
 .net-chip.ok{color:var(--lime)}.net-chip.ok i{background:var(--lime);box-shadow:0 0 9px var(--lime);animation:pulse 2s infinite}
-.net-chip.off{color:var(--amber)}.net-chip.off i{background:var(--amber);box-shadow:0 0 9px var(--amber)}
+.net-chip.off,.net-chip.wait{color:var(--amber)}.net-chip.off i,.net-chip.wait i{background:var(--amber);box-shadow:0 0 9px var(--amber)}
 .net-chip.local{color:var(--cyan)}.net-chip.local i{background:var(--cyan);box-shadow:0 0 9px var(--cyan)}
 .net-chip.small{padding:2px 8px;font-size:9.5px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-
 .lobby{position:relative;z-index:2;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 .lobby-top{display:flex;align-items:center;justify-content:space-between;padding:20px clamp(18px,4vw,36px)}
 .brand{display:flex;align-items:center;gap:11px}
@@ -169,7 +166,6 @@ button{color:inherit}
 @keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
 .shake{animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
-
 .chat{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;height:100dvh;animation:chatIn .35s ease}
 @keyframes chatIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
 .chat-top{position:relative;z-index:20;display:flex;align-items:center;gap:12px;height:66px;flex:none;border-bottom:1px solid var(--line);background:rgba(8,12,22,.8);backdrop-filter:blur(18px);padding:0 clamp(10px,2vw,18px)}
@@ -255,7 +251,6 @@ button{color:inherit}
 .emoji-pop{position:absolute;bottom:calc(100% + 10px);left:0;z-index:30;width:min(336px,calc(100vw - 44px));max-height:236px;overflow-y:auto;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;border:1px solid var(--line);border-radius:16px;background:rgba(11,17,32,.98);backdrop-filter:blur(16px);padding:10px;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:pop .22s}
 .emoji-pop button{height:36px;border:0;border-radius:9px;background:none;font-size:20px;cursor:pointer;transition:.12s}
 .emoji-pop button:hover{transform:scale(1.18);background:rgba(148,170,220,.12)}
-
 .sidebar{min-height:0;display:flex;flex-direction:column;gap:18px;overflow-y:auto;border-left:1px solid var(--line);background:rgba(9,13,24,.6);backdrop-filter:blur(12px);padding:18px}
 .sb-head{display:none;align-items:center;justify-content:space-between;font-size:15px;font-weight:700}
 .sb-card{border:1px solid transparent;border-radius:16px;background:linear-gradient(#0b1120,#0b1120) padding-box,linear-gradient(140deg,var(--lime),var(--cyan) 60%,var(--magenta)) border-box;padding:14px}
@@ -279,7 +274,6 @@ button{color:inherit}
 .sb-dev{color:var(--muted);font-size:11.5px;text-align:center}
 .sidebar .btn.danger{margin-top:auto}
 .scrim{position:fixed;inset:0;z-index:55;background:rgba(3,5,10,.62);backdrop-filter:blur(2px)}
-
 .modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px}
 .m-scrim{position:absolute;inset:0;background:rgba(3,5,10,.72);backdrop-filter:blur(6px)}
 .dialog{position:relative;width:min(420px,100%);border:1px solid var(--line);border-radius:22px;background:rgba(11,17,32,.98);padding:26px;box-shadow:0 40px 100px rgba(0,0,0,.6);animation:pop .3s cubic-bezier(.3,1.3,.5,1)}
@@ -301,7 +295,6 @@ button{color:inherit}
 .toast.in{opacity:1;transform:none}
 .t-act{flex:none;border:1px solid rgba(200,240,75,.4);border-radius:99px;background:rgba(200,240,75,.1);padding:5px 11px;color:var(--lime);font-size:12px;font-weight:700;cursor:pointer}
 .t-act:hover{background:rgba(200,240,75,.2)}
-
 @media(max-width:1023px){
   .chat-body{display:block;position:relative}
   .msg-col{height:100%}
@@ -345,7 +338,7 @@ button{color:inherit}
       </div>
     </div>
     <div class="top-actions">
-      <span id="netChipLobby" class="net-chip ok"><i></i>Online</span>
+      <span id="netChipLobby" class="net-chip wait"><i></i>Menyambung</span>
       <button class="icon-btn sound-btn" aria-label="Suara"></button>
     </div>
   </header>
@@ -430,7 +423,7 @@ button{color:inherit}
     <div class="room-meta">
       <div class="room-title" id="roomTitle">ROOM</div>
       <div class="room-sub">
-        <span id="netChip" class="net-chip ok small"><i></i>Online</span>
+        <span id="netChip" class="net-chip wait small"><i></i>Menyambung</span>
         <span id="onlineCount">1 online</span>
         <span class="me-chip"><span id="meAv"></span><span id="asName">kamu: —</span></span>
       </div>
@@ -442,7 +435,7 @@ button{color:inherit}
       <button id="btnMembers" class="icon-btn members-btn" type="button" aria-label="Detail room"><i id="memberBadge">1</i></button>
     </div>
   </header>
-  <div id="offlineBar" class="offline-bar hidden">⚠ Koneksi internet terputus — pesan akan tersinkron saat kembali online.</div>
+  <div id="offlineBar" class="offline-bar hidden">⚠ Koneksi terputus — mencoba menyambung kembali…</div>
   <div id="searchBar" class="search-bar hidden">
     <span class="s-ic" id="searchIc"></span>
     <input id="searchInput" placeholder="Cari pesan atau nama pengguna…" autocomplete="off">
@@ -507,7 +500,7 @@ button{color:inherit}
 
 <div id="toasts" class="toasts" aria-live="polite"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/gun@0.2020.1240/gun.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js" onerror="var s=document.createElement('script');s.src='https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js';document.head.appendChild(s);"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 (() => {
@@ -586,13 +579,36 @@ function toast(msg,emoji='✨',action){
   $('#toasts').appendChild(el);requestAnimationFrame(()=>el.classList.add('in'));setTimeout(dismiss,action?5200:2600);
 }
 
-const PEERS=['https://relay.peer.ooo/gun','https://gun-relay.glitch.me/gun','https://gun-manhattan.herokuapp.com/gun'];
-let gun=null;
-try{if(typeof Gun!=='undefined')gun=Gun({peers:PEERS,localStorage:true,radisk:false});}catch(e){}
+/* ===== Transport: MQTT over WebSocket (broker publik, tanpa server sendiri) ===== */
+const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
+let client=null,brokerIdx=0,ready=false,libTries=0;
+const topic=r=>'quickchat-ryoxd-v1/'+r;
 let bc=null;try{bc=new BroadcastChannel('quickchat-v2');}catch(e){}
+function publish(o){
+  const payload={...o,room:S.room,from:uid};
+  if(ready&&client){try{client.publish(topic(S.room),JSON.stringify(payload),{qos:0});}catch(e){}}
+  bc?.postMessage(payload);
+}
+function connect(){
+  if(typeof mqtt==='undefined'){ if(libTries++<20)setTimeout(connect,500); renderNet(); return; }
+  const url=BROKERS[brokerIdx%BROKERS.length];
+  try{ client=mqtt.connect(url,{clientId:'qc_'+uid+'_'+rand(4),keepalive:30,reconnectPeriod:2500,connectTimeout:8000,clean:true}); }catch(e){ client=null; }
+  if(!client){renderNet();return;}
+  client.on('connect',()=>{ ready=true; renderNet(); if(S.joined){ client.subscribe(topic(S.room)); writePresence(); publish({kind:'hello'}); } });
+  client.on('message',(t,p)=>{ let d; try{d=JSON.parse(p.toString());}catch(e){return;} if(d.room===S.room) handleRemote(d); });
+  client.on('close',()=>{ ready=false; renderNet(); });
+  client.on('error',()=>{ ready=false; renderNet(); try{client.end(true);}catch(e){} brokerIdx++; setTimeout(connect,800); });
+}
+function handleRemote(d){
+  if(!d||!S.joined)return;
+  if(d.kind==='msg')applyMessage(d.data);
+  else if(d.kind==='presence')applyPresence(d.from,d.data);
+  else if(d.kind==='react'){patchRaw(d.mid,d.key,d.val);renderReactions(d.mid);}
+  else if(d.kind==='hello'&&d.from!==uid){ writePresence(); if(S.order.length)publish({kind:'history',msgs:S.order.slice(-100).map(id=>stripMsg(S.msgs.get(id))),react:S.reactRaw}); }
+  else if(d.kind==='history'&&d.from!==uid){ (d.msgs||[]).forEach(m=>applyMessage(m)); if(d.react)for(const mid in d.react)for(const k in d.react[mid]){patchRaw(mid,k,d.react[mid][k]);renderReactions(mid);} }
+}
 
 const S={room:null,name:'',token:0,joined:false,msgs:new Map(),order:[],presence:new Map(),reactRaw:{},unread:0,initialUntil:0,editId:null,typingSent:false,pendingCode:null,avatar:AVATARS[0].e,avatarColor:0};
-let nodes=null,msgChain=null,presChain=null,reactOuter=null,reactInner=[],reactMids=new Set();
 const T={hb:null,prune:null,typing:null,rebuild:null,search:null};
 const EMOJIS=['😀','😁','😂','🤣','😊','😍','😘','😜','😎','🥳','','🤔','','😅','😴','🤫','😱','😡','👍','👎','👏','🙏','💪','✌️','👀','','❤️','','💛','💚','💙','💜','🖤','💔','✨','🔥','','🎉','','','','☕','','⭐','','🫡'];
 const QUICK=['❤️','😂','🔥','👍'];
@@ -684,7 +700,7 @@ function addWelcome(){const w=document.createElement('div');w.className='welcome
 function updateStats(){$('#statMsgs').textContent=S.order.filter(id=>{const m=S.msgs.get(id);return m.type==='message'&&!m.deleted;}).length;}
 function updateNewPill(){$('#newPill').classList.toggle('hidden',S.unread===0);$('#newCount').textContent=S.unread;}
 function stripMsg(m){return{id:m.id,uid:m.uid,user:m.user,text:m.text,time:m.time,type:m.type,editedAt:m.editedAt||0,deleted:!!m.deleted,avatar:m.avatar||'',avatarColor:m.avatarColor??hash(m.user)%COLORS.length};}
-function writeMsg(m){applyMessage(m);const data=stripMsg(m);if(gun&&nodes)nodes.messages.get(m.id).put(data);bc?.postMessage({room:S.room,kind:'msg',data});}
+function writeMsg(m){applyMessage(m);publish({kind:'msg',data:stripMsg(m)});}
 function sendSystem(text){writeMsg({id:'sys-'+Date.now().toString(36)+'-'+rand(4),uid:'system',user:'System',text,time:now(),type:'system',editedAt:0,deleted:false,avatar:'',avatarColor:0});}
 function sendMessage(){
   const ta=$('#input'),text=ta.value.trim().slice(0,2000);if(!text)return;
@@ -697,7 +713,7 @@ function exitEdit(){S.editId=null;$('#editBar').classList.add('hidden');const ta
 function deleteMsg(id){const m=S.msgs.get(id);if(!m||m.uid!==uid)return;writeMsg({...m,deleted:true,editedAt:now()});toast('Pesan dihapus','🗑',{label:'Urungkan',fn:()=>{const cur=S.msgs.get(id);if(cur)writeMsg({...cur,deleted:false,editedAt:now()});}});}
 
 function patchRaw(mid,key,val){if(val){(S.reactRaw[mid]=S.reactRaw[mid]||{})[key]=1;}else if(S.reactRaw[mid])delete S.reactRaw[mid][key];}
-function toggleReaction(mid,emoji){const key=emoji+'|'+uid,cur=S.reactRaw[mid]?.[key],val=cur?null:1;patchRaw(mid,key,val);renderReactions(mid);Sound.play('react');if(gun&&nodes)nodes.reactions.get(mid).get(key).put(val);bc?.postMessage({room:S.room,kind:'react',mid,key,val});}
+function toggleReaction(mid,emoji){const key=emoji+'|'+uid,cur=S.reactRaw[mid]?.[key],val=cur?null:1;patchRaw(mid,key,val);renderReactions(mid);Sound.play('react');publish({kind:'react',mid,key,val});}
 function renderReactions(mid,el){
   el=el||$('#msgList').querySelector(`[data-id="${CSS.escape(mid)}"]`);if(!el)return;const row=el.querySelector('.m-react');if(!row)return;const m=S.msgs.get(mid);row.innerHTML='';if(m?.deleted)return;
   const counts={};for(const k in(S.reactRaw[mid]||{})){const[em,u]=k.split('|');(counts[em]=counts[em]||new Set()).add(u);}
@@ -706,7 +722,7 @@ function renderReactions(mid,el){
 
 function writePresence(extra={}){
   if(!S.joined)return;const p={user:S.name,avatar:S.avatar,avatarColor:S.avatarColor,seen:now(),typing:S.typingSent,...extra};
-  S.presence.set(uid,p);if(gun&&nodes)nodes.presence.get(uid).put(p);bc?.postMessage({room:S.room,kind:'presence',uid,data:p});renderPeople();renderTyping();
+  S.presence.set(uid,p);publish({kind:'presence',data:p});renderPeople();renderTyping();
 }
 function applyPresence(u,p){if(!p||typeof p!=='object')return;S.presence.set(u,{user:String(p.user||'?'),avatar:String(p.avatar||''),avatarColor:+p.avatarColor||0,seen:+p.seen||0,typing:!!p.typing});renderPeople();renderTyping();}
 function onlineList(){
@@ -738,11 +754,11 @@ function focusHit(){searchState.hits.forEach((el,i)=>el.classList.toggle('search
 function stepHit(d){if(!searchState.hits.length)return;searchState.idx=(searchState.idx+d+searchState.hits.length)%searchState.hits.length;focusHit();}
 function toggleSearch(){const bar=$('#searchBar'),open=bar.classList.contains('hidden');bar.classList.toggle('hidden',!open);if(open)$('#searchInput').focus();else{$('#searchInput').value='';runSearch(false);}}
 function renderNet(){
-  const mode=!gun?'local':(navigator.onLine?'ok':'off');
-  const label={ok:'Online',off:'Offline',local:'Lokal'}[mode];
-  const title={ok:'Terhubung ke internet',off:'Tidak ada koneksi internet',local:'Mode lokal antar-tab browser'}[mode];
+  const mode=!navigator.onLine?'off':(typeof mqtt==='undefined'?'local':(ready?'ok':'wait'));
+  const label={ok:'Online',off:'Offline',local:'Lokal',wait:'Menyambung'}[mode];
+  const title={ok:'Terhubung — chat lintas perangkat aktif',off:'Tidak ada koneksi internet',local:'Mode lokal antar-tab browser',wait:'Menyambung ke server chat'}[mode];
   [$('#netChip'),$('#netChipLobby')].forEach(ch=>{ch.className='net-chip '+mode+(ch.id==='netChip'?' small':'');ch.innerHTML='<i></i>'+label;ch.title=title;});
-  $('#offlineBar').classList.toggle('hidden',mode!=='off');
+  $('#offlineBar').classList.toggle('hidden',mode==='ok');
 }
 
 function joinChat(code){
@@ -752,35 +768,24 @@ function joinChat(code){
   code=normCode(code);
   if(code.length<3){setTab('join');$('#codeFld').classList.add('invalid');$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);$('#codeInput').focus();return;}
   localStorage.setItem('qc-name',name);
-  S.name=name;S.room=code;S.token++;const tok=S.token;S.joined=true;S.initialUntil=now()+1600;
+  S.name=name;S.room=code;S.token++;S.joined=true;S.initialUntil=now()+1600;
   S.msgs.clear();S.order=[];S.presence.clear();S.reactRaw={};S.unread=0;S.editId=null;S.typingSent=false;
   $('#msgList').innerHTML='';$('#editBar').classList.add('hidden');updateNewPill();
-  if(gun){
-    const root=gun.get('qc-avatar-room-'+code);
-    nodes={root,messages:root.get('messages'),presence:root.get('presence'),reactions:root.get('reactions')};
-    msgChain=nodes.messages.map();msgChain.on((d,k)=>{if(tok===S.token)applyMessage(d,k);});
-    presChain=nodes.presence.map();presChain.on((d,k)=>{if(tok===S.token&&d)applyPresence(k,d);});
-    reactMids=new Set();reactInner=[];
-    reactOuter=nodes.reactions.map();reactOuter.on((d,mid)=>{
-      if(tok!==S.token||!mid||mid==='_'||reactMids.has(mid))return;
-      reactMids.add(mid);const chain=nodes.reactions.get(mid).map();
-      chain.on((val,key)=>{if(tok!==S.token||key==='_')return;patchRaw(mid,key,val);renderReactions(mid);});reactInner.push(chain);
-    });
-  }else{nodes=null;toast('Mesin relay tidak termuat — mode lokal antar-tab browser.','📴');}
+  if(ready&&client){client.subscribe(topic(code));}
   clearInterval(T.hb);clearInterval(T.prune);T.hb=setInterval(()=>writePresence(),12000);T.prune=setInterval(()=>{renderPeople();renderTyping();},5000);
   $('#lobby').classList.add('hidden');$('#chat').classList.remove('hidden');document.body.classList.add('chat-mode');
   $('#roomTitle').textContent=code;document.title='#'+code+' — QuickChat';
   const rc=colorOf(code);$('#roomAvatar').style.background=`linear-gradient(135deg,rgba(255,255,255,.28),rgba(0,0,0,.12)),${rc}`;$('#roomAvatar').textContent=initials(code.replace(/-/g,' '));
   $('#sbCode').textContent=code;$('#statSince').textContent=fmtTime(now());
   const link=shareLink(code);renderQR($('#sbQR'),link,120);history.replaceState(null,'',location.pathname+'?room='+code);
-  addWelcome();updateProfilePreview();writePresence();sendSystem(name+' bergabung ke room');renderNet();renderPeople();updateStats();Sound.play('join');
+  addWelcome();updateProfilePreview();writePresence();publish({kind:'hello'});sendSystem(name+' bergabung ke room');renderNet();renderPeople();updateStats();Sound.play('join');
   $('#input').focus();scrollBottom(false);
 }
 function doLeave(){
-  if(!S.joined)return;typingClear();writePresence({seen:0,typing:false});sendSystem(S.name+' keluar dari room');S.token++;S.joined=false;
+  if(!S.joined)return;typingClear();writePresence({seen:0,typing:false});sendSystem(S.name+' keluar dari room');
+  if(ready&&client){try{client.unsubscribe(topic(S.room));}catch(e){}}
+  S.joined=false;S.room=null;
   clearInterval(T.hb);clearInterval(T.prune);clearTimeout(T.rebuild);clearTimeout(T.search);
-  [msgChain,presChain,reactOuter,...reactInner].forEach(c=>{try{c?.off();}catch(e){}});
-  msgChain=presChain=reactOuter=null;reactInner=[];reactMids=new Set();nodes=null;
   S.msgs.clear();S.order=[];S.presence.clear();S.reactRaw={};S.unread=0;exitEdit();
   $('#searchInput').value='';searchState.q='';searchState.hits=[];$('#searchBar').classList.add('hidden');
   closeModal('leaveModal');closeModal('shareModal');closeSidebar();closeEmoji();
@@ -808,7 +813,7 @@ function init(){
   $('#btnCloseSb').innerHTML=icon('x');$('#btnCancelEdit').innerHTML=icon('x');$('#btnEmoji').innerHTML=icon('smile');$('#btnSend').innerHTML=icon('send',19);$('#btnSbCopy').innerHTML=icon('copy');$('#btnSbLink').innerHTML=icon('link',15)+' Salin Link Undangan';$('#newPill').insertAdjacentHTML('afterbegin',icon('down',14));
   $('#btnSearchPrev').innerHTML=icon('up');$('#btnSearchNext').innerHTML=icon('down');$('#btnSearchClear').innerHTML=icon('x');
   $('#btnSmCode').innerHTML=icon('copy');$('#btnSmCopy').innerHTML=icon('copy')+' Salin Link';$('#btnSmShare').innerHTML=icon('share')+' Bagikan…';$('#leaveIc').innerHTML=icon('logout',24);$$('.d-close').forEach(b=>b.innerHTML=icon('x'));
-  updateSoundButtons();buildEmoji();renderNet();
+  updateSoundButtons();buildEmoji();renderNet();connect();
   const sp=$('#sparks'),cols=['#C8F04B','#53D8FF','#FF6AC1','#9D8CFF'];
   for(let i=0;i<12;i++){const s=document.createElement('i'),sz=3+Math.random()*3;s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cols[i%4]};box-shadow:0 0 ${6+sz*2}px ${cols[i%4]};--dur:${8+Math.random()*8}s;--del:${-Math.random()*10}s`;sp.appendChild(s);}
   const savedName=localStorage.getItem('qc-name')||'',savedAv=localStorage.getItem('qc-avatar'),savedColor=localStorage.getItem('qc-avatar-color');
@@ -843,8 +848,8 @@ function init(){
   $('#btnSearch').onclick=toggleSearch;$('#searchInput').addEventListener('input',()=>runSearch(true));$('#searchInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();stepHit(e.shiftKey?-1:1);}if(e.key==='Escape'){e.preventDefault();toggleSearch();}});
   $('#btnSearchPrev').onclick=()=>stepHit(-1);$('#btnSearchNext').onclick=()=>stepHit(1);$('#btnSearchClear').onclick=toggleSearch;
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#emojiPop').classList.contains('hidden'))return closeEmoji();if(!$('#searchBar').classList.contains('hidden'))return toggleSearch();if(!$('#shareModal').classList.contains('hidden'))return closeModal('shareModal');if(!$('#leaveModal').classList.contains('hidden'))return closeModal('leaveModal');if($('#sidebar').classList.contains('open'))return closeSidebar();if(S.editId)return exitEdit();}});
-  if(bc)bc.onmessage=e=>{const d=e.data;if(!d||!S.joined||d.room!==S.room)return;if(d.kind==='msg')applyMessage(d.data);else if(d.kind==='presence')applyPresence(d.uid,d.data);else if(d.kind==='react'){patchRaw(d.mid,d.key,d.val);renderReactions(d.mid);}};
-  window.addEventListener('online',()=>{renderNet();toast('Kembali online','🌐');if(S.joined)writePresence();});window.addEventListener('offline',()=>{renderNet();toast('Koneksi terputus','📴');});
+  if(bc)bc.onmessage=e=>{const d=e.data;if(d&&d.room===S.room&&d.from!==uid)handleRemote(d);};
+  window.addEventListener('online',()=>{renderNet();toast('Kembali online','🌐');if(S.joined)writePresence();});window.addEventListener('offline',()=>{renderNet();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.joined){writePresence();renderNet();}});window.addEventListener('beforeunload',()=>{if(S.joined)writePresence({seen:0,typing:false});});
   updateSendBtn();$('#nameInput').focus();
 }
