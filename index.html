@@ -335,7 +335,7 @@ button{color:inherit}
       <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8F04B"/><stop offset="1" stop-color="#53D8FF"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="13" fill="url(#lg)"/><path d="M14 11h20a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7h-9l-8 7v-7h-3a7 7 0 0 1-7-7v-9a7 7 0 0 1 7-7z" fill="#06090F"/><path d="M27 15l-8 11h5l-2 8 8-11h-5l2-8z" fill="#C8F04B"/></svg>
       <div class="brand-text">
         <span class="wordmark">Quick<b>Chat</b></span>
-        <span class="brand-dev">Developer: Ryo XD</span>
+        <span class="brand-dev">Developer: Ryo XD · v4</span>
       </div>
     </div>
     <div class="top-actions">
@@ -359,7 +359,7 @@ button{color:inherit}
       <ul class="feats reveal d4">
         <li><i style="background:var(--lime)"></i>Avatar & nama wajib</li>
         <li><i style="background:var(--cyan)"></i>Undang via link & QR</li>
-        <li><i style="background:var(--magenta)"></i>Hanya kode room valid</li>
+        <li><i style="background:var(--magenta)"></i>Kode room tervalidasi</li>
       </ul>
     </section>
 
@@ -391,7 +391,7 @@ button{color:inherit}
           <button id="tabJoin" role="tab" aria-selected="false"></button>
         </div>
         <div id="paneCreate" class="pane">
-          <p class="pane-hint">Kode acak dibuat otomatis dan didaftarkan ke server. Bagikan kode/link ini; kode asal tidak bisa dipakai orang lain.</p>
+          <p class="pane-hint">Kode acak dibuat dan didaftarkan ke server. Hanya kode ini (atau link undangannya) yang bisa dipakai orang lain untuk masuk.</p>
           <button id="btnGenerate" class="btn primary" type="button"></button>
           <div id="roomBox" class="room-box hidden">
             <div class="rb-top"><span class="rb-label">KODE ROOM</span><button id="btnRegen" class="mini-btn" type="button" title="Acak ulang"></button></div>
@@ -408,7 +408,7 @@ button{color:inherit}
             <small class="err">Masukkan kode room yang valid.</small>
           </label>
           <button id="btnJoin" class="btn primary" type="button"></button>
-          <p class="pane-hint center">Hanya kode room yang sudah dibuat yang bisa dimasuki.</p>
+          <p class="pane-hint center">Kode asal / tidak terdaftar akan langsung ditolak.</p>
         </div>
       </div>
       <p class="jc-foot" id="jcFoot">🔒 Avatar & nama disimpan di perangkat ini. Tidak perlu akun.</p>
@@ -569,7 +569,7 @@ const Sound={
     else if(kind==='join'){blip(520,520,.09,.04,'triangle');blip(780,780,.12,.04,'triangle',.09);}
     else if(kind==='react')blip(950,1150,.06,.035,'triangle');
   },
-  toggle(){this.on=!this.on;localStorage.setItem('qc-sound',this.on?'1':'0');updateSoundButtons();if(this.on)this.play('react');toast(this.on?'Suara aktif':'Suara dimatikan',this.on?'🔊':'🔇');}
+  toggle(){this.on=!this.on;localStorage.setItem('qc-sound',this.on?'1':'0');updateSoundButtons();if(this.on)this.play('react');toast(this.on?'Suara aktif':'Suara dimatikan',this.on?'🔊':'');}
 };
 function updateSoundButtons(){ $$('.sound-btn').forEach(b=>{b.innerHTML=icon(Sound.on?'vol':'volx');b.setAttribute('aria-pressed',Sound.on);b.title=Sound.on?'Matikan suara':'Aktifkan suara';}); }
 function toast(msg,emoji='✨',action){
@@ -580,34 +580,32 @@ function toast(msg,emoji='✨',action){
   $('#toasts').appendChild(el);requestAnimationFrame(()=>el.classList.add('in'));setTimeout(dismiss,action?5200:2600);
 }
 
-/* ===== Transport: multi-broker MQTT (semua perangkat bertemu di broker yang sama) ===== */
+/* ===== Transport: multi-broker MQTT, validasi room fail-closed ===== */
 const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
-const NS='qc-ryoxd-v3/';
+const NS='qc-ryoxd-v4/';
 const chatTopic=r=>NS+'room/'+r+'/chat';
 const metaTopic=r=>NS+'room/'+r+'/meta';
 let clients=[],libTries=0;
-const created=new Set();
+const created=new Set(JSON.parse(localStorage.getItem('qc-created')||'[]'));
 const lastHist={};
-let bc=null;try{bc=new BroadcastChannel('quickchat-v3');}catch(e){}
+let bc=null;try{bc=new BroadcastChannel('quickchat-v4');}catch(e){}
 const anyConnected=()=>clients.some(c=>c&&c.connected);
 function publish(o){
   const payload={...o,room:S.room,from:uid};
   clients.forEach(c=>{if(c&&c.connected){try{c.publish(chatTopic(S.room),JSON.stringify(payload),{qos:0});}catch(e){}}});
   bc?.postMessage(payload);
 }
-function publishMeta(code){
-  const payload=JSON.stringify({type:'meta',code,created:now()});
-  clients.forEach(c=>{if(c&&c.connected){try{c.publish(metaTopic(code),payload,{qos:0,retain:true});}catch(e){}}});
-}
-function ensureMeta(code){created.add(code);publishMeta(code);}
+function metaPayload(code){return JSON.stringify({type:'meta',code,created:now(),by:uid});}
+function publishMeta(code){clients.forEach(c=>{if(c&&c.connected){try{c.publish(metaTopic(code),metaPayload(code),{qos:1,retain:true});}catch(e){}}});}
+function ensureMeta(code){created.add(code);localStorage.setItem('qc-created',JSON.stringify([...created]));publishMeta(code);}
 function connectAll(){
   if(typeof mqtt==='undefined'){if(libTries++<20)setTimeout(connectAll,500);renderNet();return;}
   clients=BROKERS.map((url,i)=>{
-    let c;try{c=mqtt.connect(url,{clientId:'qc_'+uid+'_'+i+'_'+rand(4),keepalive:30,reconnectPeriod:3000,connectTimeout:8000,clean:true});}catch(e){return null;}
+    let c;try{c=mqtt.connect(url,{clientId:'qc_'+uid+'_'+i+'_'+rand(4),keepalive:25,reconnectPeriod:2500,connectTimeout:7000,clean:true});}catch(e){return null;}
     c.on('connect',()=>{
       renderNet();
-      created.forEach(code=>{try{c.publish(metaTopic(code),JSON.stringify({type:'meta',code,created:now()}),{qos:0,retain:true});}catch(e){}});
-      if(S.joined){try{c.subscribe(chatTopic(S.room));}catch(e){} writePresence(); publish({kind:'hello'});}
+      created.forEach(code=>{try{c.publish(metaTopic(code),metaPayload(code),{qos:1,retain:true});}catch(e){}});
+      if(S.joined){try{c.subscribe(chatTopic(S.room),{qos:0});}catch(e){} writePresence(); publish({kind:'hello'});}
     });
     c.on('message',(t,p)=>{
       if(t!==chatTopic(S.room))return;
@@ -634,9 +632,9 @@ function verifyRoom(code,cb){
   if(!anyConnected()){cb(false);return;}
   const mt=metaTopic(code);let done=false;
   const finish=ok=>{if(done)return;done=true;clearTimeout(to);clients.forEach(c=>{if(!c)return;try{c.unsubscribe(mt);}catch(e){} try{c.removeListener('message',onMsg);}catch(e){}});cb(ok);};
-  const onMsg=(t,p)=>{if(t===mt&&p&&p.length)finish(true);};
-  clients.forEach(c=>{if(c&&c.connected){c.on('message',onMsg);try{c.subscribe(mt);}catch(e){}}});
-  const to=setTimeout(()=>finish(false),3000);
+  const onMsg=(t,p)=>{if(t===mt&&p&&p.length){try{const d=JSON.parse(p.toString());if(d&&d.type==='meta'&&d.code===code)finish(true);}catch(e){}}};
+  clients.forEach(c=>{if(c&&c.connected){c.on('message',onMsg);try{c.subscribe(mt,{qos:1});}catch(e){}}});
+  const to=setTimeout(()=>finish(false),3500);
 }
 
 const S={room:null,name:'',token:0,joined:false,msgs:new Map(),order:[],presence:new Map(),reactRaw:{},unread:0,initialUntil:0,editId:null,typingSent:false,pendingCode:null,avatar:AVATARS[0].e,avatarColor:0};
@@ -790,24 +788,25 @@ function renderNet(){
   const title={ok:'Terhubung — chat lintas perangkat aktif',off:'Tidak ada koneksi internet',local:'Mode lokal antar-tab browser',wait:'Menyambung ke server chat'}[mode];
   [$('#netChip'),$('#netChipLobby')].forEach(ch=>{ch.className='net-chip '+mode+(ch.id==='netChip'?' small':'');ch.innerHTML='<i></i>'+label;ch.title=title;});
   $('#offlineBar').classList.toggle('hidden',mode==='ok');
+  const bj=$('#btnJoin');if(bj&&!bj.dataset.busy)bj.disabled=!anyConnected();
 }
 
-function setJoinBusy(b){const btn=$('#btnJoin');btn.disabled=b;btn.innerHTML=b?'Memeriksa room…':'Gabung ke Room '+icon('users');}
+function setJoinBusy(b){const btn=$('#btnJoin');btn.dataset.busy=b?'1':'';btn.disabled=b||!anyConnected();btn.innerHTML=b?'Memeriksa room…':'Gabung ke Room '+icon('users');}
 function joinChat(code){
   const name=$('#nameInput').value.trim();
   if(name.length<2){$('#nameFld').classList.add('invalid');$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);$('#nameInput').focus();return;}
   if(!S.avatar){toast('Pilih avatar dulu','🙂');return;}
   code=normCode(code);
   if(code.length<3){setTab('join');$('#codeFld').classList.add('invalid');$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);$('#codeInput').focus();return;}
-  const own=code===S.pendingCode;
+  const own=created.has(code);
   const proceed=()=>{ensureMeta(code);doJoin(code,name);};
   if(own){proceed();return;}
   if(!anyConnected()){toast('Belum terhubung ke server. Tunggu status Online lalu coba lagi.','📡');return;}
   setJoinBusy(true);
   verifyRoom(code,ok=>{
     setJoinBusy(false);
-    if(ok){proceed();}
-    else{$('#codeFld').classList.add('invalid');$('#codeFld .err').textContent='Kode room tidak ditemukan. Gunakan kode/link yang dibuat temanmu.';$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);toast('Kode room tidak ditemukan','🚫');}
+    if(ok){toast('Room ditemukan','✅');proceed();}
+    else{$('#codeFld').classList.add('invalid');$('#codeFld .err').textContent='Kode room tidak terdaftar. Gunakan kode/link yang dibuat lewat tombol Buat Room.';$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);toast('Kode room tidak terdaftar','🚫');}
   });
 }
 function doJoin(code,name){
@@ -815,7 +814,7 @@ function doJoin(code,name){
   S.name=name;S.room=code;S.token++;S.joined=true;S.initialUntil=now()+1600;
   S.msgs.clear();S.order=[];S.presence.clear();S.reactRaw={};S.unread=0;S.editId=null;S.typingSent=false;
   $('#msgList').innerHTML='';$('#editBar').classList.add('hidden');updateNewPill();
-  clients.forEach(c=>{if(c&&c.connected){try{c.subscribe(chatTopic(code));}catch(e){}}});
+  clients.forEach(c=>{if(c&&c.connected){try{c.subscribe(chatTopic(code),{qos:0});}catch(e){}}});
   clearInterval(T.hb);clearInterval(T.prune);T.hb=setInterval(()=>writePresence(),12000);T.prune=setInterval(()=>{renderPeople();renderTyping();},5000);
   $('#lobby').classList.add('hidden');$('#chat').classList.remove('hidden');document.body.classList.add('chat-mode');
   $('#roomTitle').textContent=code;document.title='#'+code+' — QuickChat';
@@ -840,10 +839,11 @@ function doLeave(){
 
 function setTab(which){const join=which==='join';$('#tabs').classList.toggle('join',join);$('#tabCreate').classList.toggle('on',!join);$('#tabJoin').classList.toggle('on',join);$('#tabCreate').setAttribute('aria-selected',!join);$('#tabJoin').setAttribute('aria-selected',join);$('#paneCreate').classList.toggle('hidden',join);$('#paneJoin').classList.toggle('hidden',!join);}
 function generateCode(){
+  if(!anyConnected()){toast('Tunggu status Online dulu supaya kode terdaftar di server.','📡');return;}
   S.pendingCode=newRoomCode();ensureMeta(S.pendingCode);
   $('#genCode').textContent=S.pendingCode;const link=shareLink(S.pendingCode);$('#genLink').value=link;renderQR($('#genQR'),link,128);
   $('#roomBox').classList.remove('hidden');$('#btnEnter').classList.remove('hidden');$('#btnGenerate').classList.add('hidden');Sound.play('react');
-  if(!anyConnected())toast('Kode dibuat. Tunggu status Online sebelum dibagikan agar terdaftar di server.','📡');
+  toast('Kode room dibuat & terdaftar','✅');
 }
 function autoGrow(){const ta=$('#input');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';}
 function updateSendBtn(){const has=$('#input').value.trim().length>0,b=$('#btnSend');b.disabled=!has;b.innerHTML=icon(S.editId?'check':'send',19);const len=$('#input').value.length,cc=$('#charCount');cc.classList.toggle('hidden',len<1800);cc.textContent=len+'/2000';}
