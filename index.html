@@ -47,8 +47,9 @@ button{color:inherit}
 .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:13px;padding:13px 18px;font-weight:700;font-size:15px;cursor:pointer;transition:.18s}
 .btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
 .btn.primary{background:linear-gradient(135deg,var(--lime),var(--teal));color:#081018;box-shadow:0 9px 28px rgba(200,240,75,.23)}
-.btn.primary:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 13px 36px rgba(200,240,75,.33)}
+.btn.primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 13px 36px rgba(200,240,75,.33)}
 .btn.ghost{background:var(--glass);border-color:var(--line)}
 .btn.ghost:hover{border-color:rgba(200,240,75,.45);background:rgba(200,240,75,.075)}
 .btn.danger{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.36);color:#ff9090}
@@ -358,7 +359,7 @@ button{color:inherit}
       <ul class="feats reveal d4">
         <li><i style="background:var(--lime)"></i>Avatar & nama wajib</li>
         <li><i style="background:var(--cyan)"></i>Undang via link & QR</li>
-        <li><i style="background:var(--magenta)"></i>Edit, reaksi, pencarian</li>
+        <li><i style="background:var(--magenta)"></i>Hanya kode room valid</li>
       </ul>
     </section>
 
@@ -390,7 +391,7 @@ button{color:inherit}
           <button id="tabJoin" role="tab" aria-selected="false"></button>
         </div>
         <div id="paneCreate" class="pane">
-          <p class="pane-hint">Kode acak dibuat otomatis. Bagikan sebelum masuk, atau pakai tombol Undang di dalam room.</p>
+          <p class="pane-hint">Kode acak dibuat otomatis dan didaftarkan ke server. Bagikan kode/link ini; kode asal tidak bisa dipakai orang lain.</p>
           <button id="btnGenerate" class="btn primary" type="button"></button>
           <div id="roomBox" class="room-box hidden">
             <div class="rb-top"><span class="rb-label">KODE ROOM</span><button id="btnRegen" class="mini-btn" type="button" title="Acak ulang"></button></div>
@@ -407,7 +408,7 @@ button{color:inherit}
             <small class="err">Masukkan kode room yang valid.</small>
           </label>
           <button id="btnJoin" class="btn primary" type="button"></button>
-          <p class="pane-hint center">Minta kode atau link undangan dari temanmu.</p>
+          <p class="pane-hint center">Hanya kode room yang sudah dibuat yang bisa dimasuki.</p>
         </div>
       </div>
       <p class="jc-foot" id="jcFoot">🔒 Avatar & nama disimpan di perangkat ini. Tidak perlu akun.</p>
@@ -579,39 +580,69 @@ function toast(msg,emoji='✨',action){
   $('#toasts').appendChild(el);requestAnimationFrame(()=>el.classList.add('in'));setTimeout(dismiss,action?5200:2600);
 }
 
-/* ===== Transport: MQTT over WebSocket (broker publik, tanpa server sendiri) ===== */
+/* ===== Transport: multi-broker MQTT (semua perangkat bertemu di broker yang sama) ===== */
 const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
-let client=null,brokerIdx=0,ready=false,libTries=0;
-const topic=r=>'quickchat-ryoxd-v1/'+r;
-let bc=null;try{bc=new BroadcastChannel('quickchat-v2');}catch(e){}
+const NS='qc-ryoxd-v3/';
+const chatTopic=r=>NS+'room/'+r+'/chat';
+const metaTopic=r=>NS+'room/'+r+'/meta';
+let clients=[],libTries=0;
+const created=new Set();
+const lastHist={};
+let bc=null;try{bc=new BroadcastChannel('quickchat-v3');}catch(e){}
+const anyConnected=()=>clients.some(c=>c&&c.connected);
 function publish(o){
   const payload={...o,room:S.room,from:uid};
-  if(ready&&client){try{client.publish(topic(S.room),JSON.stringify(payload),{qos:0});}catch(e){}}
+  clients.forEach(c=>{if(c&&c.connected){try{c.publish(chatTopic(S.room),JSON.stringify(payload),{qos:0});}catch(e){}}});
   bc?.postMessage(payload);
 }
-function connect(){
-  if(typeof mqtt==='undefined'){ if(libTries++<20)setTimeout(connect,500); renderNet(); return; }
-  const url=BROKERS[brokerIdx%BROKERS.length];
-  try{ client=mqtt.connect(url,{clientId:'qc_'+uid+'_'+rand(4),keepalive:30,reconnectPeriod:2500,connectTimeout:8000,clean:true}); }catch(e){ client=null; }
-  if(!client){renderNet();return;}
-  client.on('connect',()=>{ ready=true; renderNet(); if(S.joined){ client.subscribe(topic(S.room)); writePresence(); publish({kind:'hello'}); } });
-  client.on('message',(t,p)=>{ let d; try{d=JSON.parse(p.toString());}catch(e){return;} if(d.room===S.room) handleRemote(d); });
-  client.on('close',()=>{ ready=false; renderNet(); });
-  client.on('error',()=>{ ready=false; renderNet(); try{client.end(true);}catch(e){} brokerIdx++; setTimeout(connect,800); });
+function publishMeta(code){
+  const payload=JSON.stringify({type:'meta',code,created:now()});
+  clients.forEach(c=>{if(c&&c.connected){try{c.publish(metaTopic(code),payload,{qos:0,retain:true});}catch(e){}}});
+}
+function ensureMeta(code){created.add(code);publishMeta(code);}
+function connectAll(){
+  if(typeof mqtt==='undefined'){if(libTries++<20)setTimeout(connectAll,500);renderNet();return;}
+  clients=BROKERS.map((url,i)=>{
+    let c;try{c=mqtt.connect(url,{clientId:'qc_'+uid+'_'+i+'_'+rand(4),keepalive:30,reconnectPeriod:3000,connectTimeout:8000,clean:true});}catch(e){return null;}
+    c.on('connect',()=>{
+      renderNet();
+      created.forEach(code=>{try{c.publish(metaTopic(code),JSON.stringify({type:'meta',code,created:now()}),{qos:0,retain:true});}catch(e){}});
+      if(S.joined){try{c.subscribe(chatTopic(S.room));}catch(e){} writePresence(); publish({kind:'hello'});}
+    });
+    c.on('message',(t,p)=>{
+      if(t!==chatTopic(S.room))return;
+      let d;try{d=JSON.parse(p.toString());}catch(e){return;}
+      if(d&&d.room===S.room)handleRemote(d);
+    });
+    c.on('close',renderNet);c.on('error',renderNet);
+    return c;
+  });
 }
 function handleRemote(d){
   if(!d||!S.joined)return;
   if(d.kind==='msg')applyMessage(d.data);
   else if(d.kind==='presence')applyPresence(d.from,d.data);
   else if(d.kind==='react'){patchRaw(d.mid,d.key,d.val);renderReactions(d.mid);}
-  else if(d.kind==='hello'&&d.from!==uid){ writePresence(); if(S.order.length)publish({kind:'history',msgs:S.order.slice(-100).map(id=>stripMsg(S.msgs.get(id))),react:S.reactRaw}); }
-  else if(d.kind==='history'&&d.from!==uid){ (d.msgs||[]).forEach(m=>applyMessage(m)); if(d.react)for(const mid in d.react)for(const k in d.react[mid]){patchRaw(mid,k,d.react[mid][k]);renderReactions(mid);} }
+  else if(d.kind==='hello'&&d.from!==uid){
+    writePresence();
+    const t=now();
+    if(!lastHist[d.from]||t-lastHist[d.from]>5000){lastHist[d.from]=t;if(S.order.length)publish({kind:'history',msgs:S.order.slice(-100).map(id=>stripMsg(S.msgs.get(id))),react:S.reactRaw});}
+  }
+  else if(d.kind==='history'&&d.from!==uid){(d.msgs||[]).forEach(m=>applyMessage(m));if(d.react)for(const mid in d.react)for(const k in d.react[mid]){patchRaw(mid,k,d.react[mid][k]);renderReactions(mid);}}
+}
+function verifyRoom(code,cb){
+  if(!anyConnected()){cb(false);return;}
+  const mt=metaTopic(code);let done=false;
+  const finish=ok=>{if(done)return;done=true;clearTimeout(to);clients.forEach(c=>{if(!c)return;try{c.unsubscribe(mt);}catch(e){} try{c.removeListener('message',onMsg);}catch(e){}});cb(ok);};
+  const onMsg=(t,p)=>{if(t===mt&&p&&p.length)finish(true);};
+  clients.forEach(c=>{if(c&&c.connected){c.on('message',onMsg);try{c.subscribe(mt);}catch(e){}}});
+  const to=setTimeout(()=>finish(false),3000);
 }
 
 const S={room:null,name:'',token:0,joined:false,msgs:new Map(),order:[],presence:new Map(),reactRaw:{},unread:0,initialUntil:0,editId:null,typingSent:false,pendingCode:null,avatar:AVATARS[0].e,avatarColor:0};
 const T={hb:null,prune:null,typing:null,rebuild:null,search:null};
-const EMOJIS=['😀','😁','😂','🤣','😊','😍','😘','😜','😎','🥳','','🤔','','😅','😴','🤫','😱','😡','👍','👎','👏','🙏','💪','✌️','👀','','❤️','','💛','💚','💙','💜','🖤','💔','✨','🔥','','🎉','','','','☕','','⭐','','🫡'];
-const QUICK=['❤️','😂','🔥','👍'];
+const EMOJIS=['😀','😁','😂','🤣','😊','😍','😘','😜','😎','🥳','','🤔','','😅','😴','🤫','😱','😡','👍','👎','👏','🙏','💪','✌️','👀','','❤️','','💛','💚','💙','💜','🖤','💔','✨','🔥','','','','','','☕','','⭐','','🫡'];
+const QUICK=['❤️','😂','🔥',''];
 const URLRE=/(https?:\/\/[^\s<]+[^\s<.,:;"')\]])/g;
 const searchState={q:'',hits:[],idx:-1};
 const scroller=()=>$('#msgScroll');
@@ -754,24 +785,37 @@ function focusHit(){searchState.hits.forEach((el,i)=>el.classList.toggle('search
 function stepHit(d){if(!searchState.hits.length)return;searchState.idx=(searchState.idx+d+searchState.hits.length)%searchState.hits.length;focusHit();}
 function toggleSearch(){const bar=$('#searchBar'),open=bar.classList.contains('hidden');bar.classList.toggle('hidden',!open);if(open)$('#searchInput').focus();else{$('#searchInput').value='';runSearch(false);}}
 function renderNet(){
-  const mode=!navigator.onLine?'off':(typeof mqtt==='undefined'?'local':(ready?'ok':'wait'));
+  const mode=!navigator.onLine?'off':(typeof mqtt==='undefined'?'local':(anyConnected()?'ok':'wait'));
   const label={ok:'Online',off:'Offline',local:'Lokal',wait:'Menyambung'}[mode];
   const title={ok:'Terhubung — chat lintas perangkat aktif',off:'Tidak ada koneksi internet',local:'Mode lokal antar-tab browser',wait:'Menyambung ke server chat'}[mode];
   [$('#netChip'),$('#netChipLobby')].forEach(ch=>{ch.className='net-chip '+mode+(ch.id==='netChip'?' small':'');ch.innerHTML='<i></i>'+label;ch.title=title;});
   $('#offlineBar').classList.toggle('hidden',mode==='ok');
 }
 
+function setJoinBusy(b){const btn=$('#btnJoin');btn.disabled=b;btn.innerHTML=b?'Memeriksa room…':'Gabung ke Room '+icon('users');}
 function joinChat(code){
   const name=$('#nameInput').value.trim();
   if(name.length<2){$('#nameFld').classList.add('invalid');$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);$('#nameInput').focus();return;}
   if(!S.avatar){toast('Pilih avatar dulu','🙂');return;}
   code=normCode(code);
   if(code.length<3){setTab('join');$('#codeFld').classList.add('invalid');$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);$('#codeInput').focus();return;}
+  const own=code===S.pendingCode;
+  const proceed=()=>{ensureMeta(code);doJoin(code,name);};
+  if(own){proceed();return;}
+  if(!anyConnected()){toast('Belum terhubung ke server. Tunggu status Online lalu coba lagi.','📡');return;}
+  setJoinBusy(true);
+  verifyRoom(code,ok=>{
+    setJoinBusy(false);
+    if(ok){proceed();}
+    else{$('#codeFld').classList.add('invalid');$('#codeFld .err').textContent='Kode room tidak ditemukan. Gunakan kode/link yang dibuat temanmu.';$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);toast('Kode room tidak ditemukan','🚫');}
+  });
+}
+function doJoin(code,name){
   localStorage.setItem('qc-name',name);
   S.name=name;S.room=code;S.token++;S.joined=true;S.initialUntil=now()+1600;
   S.msgs.clear();S.order=[];S.presence.clear();S.reactRaw={};S.unread=0;S.editId=null;S.typingSent=false;
   $('#msgList').innerHTML='';$('#editBar').classList.add('hidden');updateNewPill();
-  if(ready&&client){client.subscribe(topic(code));}
+  clients.forEach(c=>{if(c&&c.connected){try{c.subscribe(chatTopic(code));}catch(e){}}});
   clearInterval(T.hb);clearInterval(T.prune);T.hb=setInterval(()=>writePresence(),12000);T.prune=setInterval(()=>{renderPeople();renderTyping();},5000);
   $('#lobby').classList.add('hidden');$('#chat').classList.remove('hidden');document.body.classList.add('chat-mode');
   $('#roomTitle').textContent=code;document.title='#'+code+' — QuickChat';
@@ -783,7 +827,7 @@ function joinChat(code){
 }
 function doLeave(){
   if(!S.joined)return;typingClear();writePresence({seen:0,typing:false});sendSystem(S.name+' keluar dari room');
-  if(ready&&client){try{client.unsubscribe(topic(S.room));}catch(e){}}
+  clients.forEach(c=>{if(c&&c.connected){try{c.unsubscribe(chatTopic(S.room));}catch(e){}}});
   S.joined=false;S.room=null;
   clearInterval(T.hb);clearInterval(T.prune);clearTimeout(T.rebuild);clearTimeout(T.search);
   S.msgs.clear();S.order=[];S.presence.clear();S.reactRaw={};S.unread=0;exitEdit();
@@ -795,7 +839,12 @@ function doLeave(){
 }
 
 function setTab(which){const join=which==='join';$('#tabs').classList.toggle('join',join);$('#tabCreate').classList.toggle('on',!join);$('#tabJoin').classList.toggle('on',join);$('#tabCreate').setAttribute('aria-selected',!join);$('#tabJoin').setAttribute('aria-selected',join);$('#paneCreate').classList.toggle('hidden',join);$('#paneJoin').classList.toggle('hidden',!join);}
-function generateCode(){S.pendingCode=newRoomCode();$('#genCode').textContent=S.pendingCode;const link=shareLink(S.pendingCode);$('#genLink').value=link;renderQR($('#genQR'),link,128);$('#roomBox').classList.remove('hidden');$('#btnEnter').classList.remove('hidden');$('#btnGenerate').classList.add('hidden');Sound.play('react');}
+function generateCode(){
+  S.pendingCode=newRoomCode();ensureMeta(S.pendingCode);
+  $('#genCode').textContent=S.pendingCode;const link=shareLink(S.pendingCode);$('#genLink').value=link;renderQR($('#genQR'),link,128);
+  $('#roomBox').classList.remove('hidden');$('#btnEnter').classList.remove('hidden');$('#btnGenerate').classList.add('hidden');Sound.play('react');
+  if(!anyConnected())toast('Kode dibuat. Tunggu status Online sebelum dibagikan agar terdaftar di server.','📡');
+}
 function autoGrow(){const ta=$('#input');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';}
 function updateSendBtn(){const has=$('#input').value.trim().length>0,b=$('#btnSend');b.disabled=!has;b.innerHTML=icon(S.editId?'check':'send',19);const len=$('#input').value.length,cc=$('#charCount');cc.classList.toggle('hidden',len<1800);cc.textContent=len+'/2000';}
 function buildEmoji(){const pop=$('#emojiPop');EMOJIS.filter(Boolean).forEach(em=>{const b=document.createElement('button');b.type='button';b.textContent=em;b.setAttribute('role','menuitem');b.onclick=()=>{const ta=$('#input'),s=ta.selectionStart??ta.value.length,e=ta.selectionEnd??s;ta.setRangeText(em,s,e,'end');ta.focus();autoGrow();updateSendBtn();typingPing();};pop.appendChild(b);});}
@@ -813,7 +862,7 @@ function init(){
   $('#btnCloseSb').innerHTML=icon('x');$('#btnCancelEdit').innerHTML=icon('x');$('#btnEmoji').innerHTML=icon('smile');$('#btnSend').innerHTML=icon('send',19);$('#btnSbCopy').innerHTML=icon('copy');$('#btnSbLink').innerHTML=icon('link',15)+' Salin Link Undangan';$('#newPill').insertAdjacentHTML('afterbegin',icon('down',14));
   $('#btnSearchPrev').innerHTML=icon('up');$('#btnSearchNext').innerHTML=icon('down');$('#btnSearchClear').innerHTML=icon('x');
   $('#btnSmCode').innerHTML=icon('copy');$('#btnSmCopy').innerHTML=icon('copy')+' Salin Link';$('#btnSmShare').innerHTML=icon('share')+' Bagikan…';$('#leaveIc').innerHTML=icon('logout',24);$$('.d-close').forEach(b=>b.innerHTML=icon('x'));
-  updateSoundButtons();buildEmoji();renderNet();connect();
+  updateSoundButtons();buildEmoji();renderNet();connectAll();
   const sp=$('#sparks'),cols=['#C8F04B','#53D8FF','#FF6AC1','#9D8CFF'];
   for(let i=0;i<12;i++){const s=document.createElement('i'),sz=3+Math.random()*3;s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cols[i%4]};box-shadow:0 0 ${6+sz*2}px ${cols[i%4]};--dur:${8+Math.random()*8}s;--del:${-Math.random()*10}s`;sp.appendChild(s);}
   const savedName=localStorage.getItem('qc-name')||'',savedAv=localStorage.getItem('qc-avatar'),savedColor=localStorage.getItem('qc-avatar-color');
@@ -824,7 +873,7 @@ function init(){
   const invited=normCode(new URLSearchParams(location.search).get('room')||'');
   if(invited.length>=3){
     setTab('join');$('#codeInput').value=invited;$('#inviteCode').textContent=invited;$('#inviteBanner').classList.remove('hidden');
-    if(savedName.trim().length>=2&&S.avatar)setTimeout(()=>{if(!S.joined)joinChat(invited);},700);
+    if(savedName.trim().length>=2&&S.avatar){let tries=0;const tryAuto=()=>{if(S.joined)return;if(anyConnected())joinChat(invited);else if(tries++<20)setTimeout(tryAuto,500);};setTimeout(tryAuto,700);}
   }
   $$('.sound-btn').forEach(b=>b.onclick=()=>Sound.toggle());
   $('#nameInput').addEventListener('input',()=>{$('#nameFld').classList.remove('invalid');updateProfilePreview();});
@@ -833,7 +882,7 @@ function init(){
   $('#btnGenerate').onclick=generateCode;$('#btnRegen').onclick=generateCode;
   $('#btnCopyCode').onclick=()=>copyText(S.pendingCode).then(()=>toast('Kode room disalin','📋'));$('#btnCopyLink').onclick=e=>copyText($('#genLink').value).then(()=>{flashBtn(e.currentTarget,icon('check',14)+' Tersalin');toast('Link undangan disalin','🔗');});
   $('#btnEnter').onclick=()=>joinChat(S.pendingCode);
-  $('#codeInput').addEventListener('input',e=>{$('#codeFld').classList.remove('invalid');e.target.value=e.target.value.toUpperCase();});
+  $('#codeInput').addEventListener('input',e=>{$('#codeFld').classList.remove('invalid');$('#codeFld .err').textContent='Masukkan kode room yang valid.';e.target.value=e.target.value.toUpperCase();});
   $('#codeInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();joinChat($('#codeInput').value);}});$('#btnJoin').onclick=()=>joinChat($('#codeInput').value);
   $('#btnLeave').onclick=()=>openModal('leaveModal');$('#btnLeave2').onclick=()=>openModal('leaveModal');$('#btnLeaveOk').onclick=doLeave;$('#btnShare').onclick=openShare;
   $('#btnMembers').onclick=()=>{$('#sidebar').classList.add('open');$('#sbScrim').classList.remove('hidden');};$('#btnCloseSb').onclick=closeSidebar;$('#sbScrim').onclick=closeSidebar;
