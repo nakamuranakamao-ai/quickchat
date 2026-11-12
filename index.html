@@ -335,7 +335,7 @@ button{color:inherit}
       <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8F04B"/><stop offset="1" stop-color="#53D8FF"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="13" fill="url(#lg)"/><path d="M14 11h20a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7h-9l-8 7v-7h-3a7 7 0 0 1-7-7v-9a7 7 0 0 1 7-7z" fill="#06090F"/><path d="M27 15l-8 11h5l-2 8 8-11h-5l2-8z" fill="#C8F04B"/></svg>
       <div class="brand-text">
         <span class="wordmark">Quick<b>Chat</b></span>
-        <span class="brand-dev">Developer: Ryo XD · v4</span>
+        <span class="brand-dev">Developer: Ryo XD · v5</span>
       </div>
     </div>
     <div class="top-actions">
@@ -580,15 +580,15 @@ function toast(msg,emoji='✨',action){
   $('#toasts').appendChild(el);requestAnimationFrame(()=>el.classList.add('in'));setTimeout(dismiss,action?5200:2600);
 }
 
-/* ===== Transport: multi-broker MQTT, validasi room fail-closed ===== */
+/* ===== Transport: multi-broker MQTT + handshake validasi room ===== */
 const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
-const NS='qc-ryoxd-v4/';
+const NS='qc-ryoxd-v5/';
 const chatTopic=r=>NS+'room/'+r+'/chat';
 const metaTopic=r=>NS+'room/'+r+'/meta';
 let clients=[],libTries=0;
 const created=new Set(JSON.parse(localStorage.getItem('qc-created')||'[]'));
 const lastHist={};
-let bc=null;try{bc=new BroadcastChannel('quickchat-v4');}catch(e){}
+let bc=null;try{bc=new BroadcastChannel('quickchat-v5');}catch(e){}
 const anyConnected=()=>clients.some(c=>c&&c.connected);
 function publish(o){
   const payload={...o,room:S.room,from:uid};
@@ -621,6 +621,7 @@ function handleRemote(d){
   if(d.kind==='msg')applyMessage(d.data);
   else if(d.kind==='presence')applyPresence(d.from,d.data);
   else if(d.kind==='react'){patchRaw(d.mid,d.key,d.val);renderReactions(d.mid);}
+  else if(d.kind==='probe'&&d.from!==uid){ensureMeta(S.room);publish({kind:'probe-ack',code:S.room});}
   else if(d.kind==='hello'&&d.from!==uid){
     writePresence();
     const t=now();
@@ -630,11 +631,16 @@ function handleRemote(d){
 }
 function verifyRoom(code,cb){
   if(!anyConnected()){cb(false);return;}
-  const mt=metaTopic(code);let done=false;
-  const finish=ok=>{if(done)return;done=true;clearTimeout(to);clients.forEach(c=>{if(!c)return;try{c.unsubscribe(mt);}catch(e){} try{c.removeListener('message',onMsg);}catch(e){}});cb(ok);};
-  const onMsg=(t,p)=>{if(t===mt&&p&&p.length){try{const d=JSON.parse(p.toString());if(d&&d.type==='meta'&&d.code===code)finish(true);}catch(e){}}};
-  clients.forEach(c=>{if(c&&c.connected){c.on('message',onMsg);try{c.subscribe(mt,{qos:1});}catch(e){}}});
-  const to=setTimeout(()=>finish(false),3500);
+  const mt=metaTopic(code),ct=chatTopic(code);let done=false;
+  const finish=ok=>{if(done)return;done=true;clearTimeout(to);clients.forEach(c=>{if(!c)return;try{c.unsubscribe(mt);}catch(e){} try{c.unsubscribe(ct);}catch(e){} try{c.removeListener('message',onMsg);}catch(e){}});cb(ok);};
+  const onMsg=(t,p)=>{
+    let d;try{d=JSON.parse(p.toString());}catch(e){return;}
+    if(t===mt&&d&&d.type==='meta'&&d.code===code)finish(true);
+    else if(t===ct&&d&&d.kind==='probe-ack'&&d.code===code&&d.from!==uid)finish(true);
+  };
+  clients.forEach(c=>{if(c&&c.connected){c.on('message',onMsg);try{c.subscribe(mt,{qos:1});c.subscribe(ct,{qos:0});}catch(e){}}});
+  setTimeout(()=>{const probe=JSON.stringify({kind:'probe',code,room:code,from:uid});clients.forEach(c=>{if(c&&c.connected){try{c.publish(ct,probe,{qos:0});}catch(e){}}});},200);
+  const to=setTimeout(()=>finish(false),4500);
 }
 
 const S={room:null,name:'',token:0,joined:false,msgs:new Map(),order:[],presence:new Map(),reactRaw:{},unread:0,initialUntil:0,editId:null,typingSent:false,pendingCode:null,avatar:AVATARS[0].e,avatarColor:0};
@@ -751,7 +757,7 @@ function renderReactions(mid,el){
 
 function writePresence(extra={}){
   if(!S.joined)return;const p={user:S.name,avatar:S.avatar,avatarColor:S.avatarColor,seen:now(),typing:S.typingSent,...extra};
-  S.presence.set(uid,p);publish({kind:'presence',data:p});renderPeople();renderTyping();
+  S.presence.set(uid,p);publish({kind:'presence',data:p});ensureMeta(S.room);renderPeople();renderTyping();
 }
 function applyPresence(u,p){if(!p||typeof p!=='object')return;S.presence.set(u,{user:String(p.user||'?'),avatar:String(p.avatar||''),avatarColor:+p.avatarColor||0,seen:+p.seen||0,typing:!!p.typing});renderPeople();renderTyping();}
 function onlineList(){
@@ -806,7 +812,7 @@ function joinChat(code){
   verifyRoom(code,ok=>{
     setJoinBusy(false);
     if(ok){toast('Room ditemukan','✅');proceed();}
-    else{$('#codeFld').classList.add('invalid');$('#codeFld .err').textContent='Kode room tidak terdaftar. Gunakan kode/link yang dibuat lewat tombol Buat Room.';$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);toast('Kode room tidak terdaftar','🚫');}
+    else{$('#codeFld').classList.add('invalid');$('#codeFld .err').textContent='Kode room tidak terdaftar / pembuat room sedang offline. Gunakan kode/link yang dibuat lewat tombol Buat Room.';$('#joinCard').classList.add('shake');setTimeout(()=>$('#joinCard').classList.remove('shake'),450);toast('Kode room tidak terdaftar','🚫');}
   });
 }
 function doJoin(code,name){
